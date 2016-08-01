@@ -1,0 +1,38 @@
+﻿@using System.Web.UI.WebControls
+@model ChickenHunt.Website.Controllers.Home.Actions.Chicken.Model
+
+@{
+    ViewBag.Title = "Chicken!";
+}
+
+<h2>Chicken! <small>Lunch is ready!</small></h2>
+@using (Html.BeginForm())
+{
+    @Html.ValidationSummary()
+    <div class="form-group">
+        <label>Chicken recipient 1</label>
+        @Html.DropDownListFor(m => m.Post.ChickenRecipient1, Model.Recipients.Select(m => new SelectListItem {Text = m.Name, Value = m.ID==0?"":m.ID.ToString()}), new {@class = "form-control"})
+        @Html.ValidationMessageFor(m=>m.Post.ChickenRecipient1)
+    </div>
+    <div class="form-group">
+        <label>Chicken recipient 2</label>
+        @Html.DropDownListFor(m => m.Post.ChickenRecipient2, Model.Recipients.Select(m => new SelectListItem {Text = m.Name, Value = m.ID == 0 ? "" : m.ID.ToString()}), new {@class = "form-control"})
+        @Html.ValidationMessageFor(m => m.Post.ChickenRecipient2)
+    </div>
+    <div class="form-group">
+        <label>Chicken maker 1</label>
+        @Html.DropDownListFor(m => m.Post.ChickenMaker1, Model.Recipients.Select(m => new SelectListItem {Text = m.Name, Value = m.ID == 0 ? "" : m.ID.ToString()}), new {@class = "form-control"})
+        @Html.ValidationMessageFor(m => m.Post.ChickenMaker1)
+    </div>
+    <div class="form-group">
+        <label>Chicken maker 2</label>
+        @Html.DropDownListFor(m => m.Post.ChickenMaker2, Model.Recipients.Select(m => new SelectListItem {Text = m.Name, Value = m.ID == 0 ? "" : m.ID.ToString()}), new {@class = "form-control"})
+        @Html.ValidationMessageFor(m => m.Post.ChickenMaker2)
+    </div>
+    <div class="form-group">
+        <label>Reported by</label>
+        <p>@Model.CurrentHunter.Name</p>
+    </div>
+    <button type="submit" class="btn btn-primary">Report Chicken!</button>
+    @Html.ActionLink("Cancel", Model.GetRoute(), ChickenHunt.Website.Controllers.Home.Actions.Index.Route.Create(), new {@class = "btn btn-default"})
+}

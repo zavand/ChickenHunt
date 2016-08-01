@@ -1,0 +1,67 @@
+﻿@using Zavand.Web.Mvc.Manana.Framework
+@model ChickenHunt.Website.Common.ILayoutModel<ChickenHunt.Website.Common.BaseWebsiteRoute>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chicken Hunt @(string.IsNullOrEmpty(@ViewBag.Title) ? "" : " - ")@ViewBag.Title</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    @*    <link rel="icon" href="/favicon.ico" type="image/x-icon" />*@
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+    <link href="~/css/font-awesome.min.css" rel="stylesheet" />
+</head>
+<style>
+    .navbar-brand>img {
+  height: 100%;
+}
+</style>
+<body>
+    <div class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a href="/" class="navbar-brand">
+                    <img src="~/Content/Images/LogoIcon.png" /></a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>@Html.ActionLink("Chicken!", Model.GetRoute(), ChickenHunt.Website.Controllers.Home.Actions.Chicken.Route.Create())</li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <li>
+                            @Html.ActionLink(User.Identity.Name, Model.GetRoute(), ChickenHunt.Website.Controllers.Home.Actions.Index.Route.Create())
+                        </li>
+                        <li>
+                            @Html.ActionLink("Sign Out", Model.GetRoute(), ChickenHunt.Website.Controllers.Sign.Actions.Out.Route.Create())
+                        </li>
+                    }
+                    else
+                    {
+                        <li>@Html.ActionLink("Sign In", Model.GetRoute(), ChickenHunt.Website.Controllers.Sign.Actions.In.Route.Create())</li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            @*            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>*@
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,3 @@
+[submodule "MvcManana"]
+	path = MvcManana
+	url = https://github.com/zavand/MvcManana.git

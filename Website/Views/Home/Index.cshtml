@@ -1,0 +1,126 @@
+﻿@using ChickenHunt.Website.DataLayer
+@model ChickenHunt.Website.Controllers.Home.Actions.Index.Model
+@{
+    ViewBag.Title = "Home";
+}
+<style>
+    .jumbotron {
+        background-color: #fff;
+        padding: 0px;
+    }
+</style>
+<div class="row text-center">
+    <div class="col-md-12 col-sm-12">
+        <img src="~/Content/Images/Logo.png"/>
+    </div>
+</div>
+<div class="text-center hidden-print">
+    <a href="@Url.RouteUrl(Model.GetRoute(), ChickenHunt.Website.Controllers.Home.Actions.Chicken.Route.Create())" class="btn btn-default">
+        <img src="~/Content/Images/LogoIcon.png"/> Report chicken</a>
+</div>
+<br/>
+<table class="table table-hover table-responsive">
+    <tr>
+        <th>Hunter</th>
+
+        @{
+            {
+                var d = DateTime.Today.AddDays(-DateTime.Today.Day + 1);
+
+                for (int i = 0; i < 6; i++)
+                {
+                    var d1 = d.AddMonths(-i);
+                    <th class="@(i > 1 ? "hidden-sm hidden-xs" : "")">
+                        @d1.ToString("MMMM")<span class="visible-print-inline">@d1.ToString(", yyyy")</span></th>
+                }
+            }
+        }
+    </tr>
+
+    @{
+        var hunters = Model.Report.Select(m => new { m.HunterID, m.HunterName }).Distinct();
+    var currentMonth = DateTime.Today.AddDays(-DateTime.Today.Day + 1);
+
+    foreach (var hunter in hunters.OrderByDescending(m =>
+    {
+        var b = Model.Report.FirstOrDefault(a => a.HunterID == m.HunterID && a.Date == currentMonth);
+        if (b == null)
+            return 0;
+        return b.Chickens;
+    }))
+    {
+            <tr>
+                <td>@hunter.HunterName</td>
+                @{
+                    for (int i = 0; i < 6; i++)
+                    {
+                        var month = currentMonth.AddMonths(-i);
+                        var rep = Model.Report.FirstOrDefault(m => m.HunterID == hunter.HunterID && m.Date == month);
+                        if (rep == null)
+                        {
+                            rep = new ChickenHuntReport
+                            {
+                                Chickens = 0,
+                                Date = month,
+                                Today = 0
+                            };
+                        }
+
+                        <td class="@(i > 1 ? "hidden-sm hidden-xs" : "")" style="@(rep.Chickens == 0 ? "color:#ddd;" : "")">
+                            <div class="text-center" style="width: 2em; display: inline-block;">@rep.Chickens</div>
+                            @if (rep.Chickens >= 5)
+                            {
+                                <span>
+                                @for (int j = 0; j < rep.Chickens / 5; j++)
+                                {
+                                    <img src="~/Content/Images/rating.png" title="@((j + 1)*5)+" />
+                                }
+                                </span>
+                            }
+                            @if (month == currentMonth && rep.Today > 0)
+                            {
+                                <span class="label label-success"><i class="fa fa-line-chart" aria-hidden="true"></i> +@rep.Today today </span>
+                            }
+                        </td>
+                    }
+                }
+            </tr>
+        }
+    }
+</table>
+<h2 class="text-center">Recent chickens</h2>
+@if (Model.Recent.Length == 0)
+{
+    <div class="alert alert-info">No records found</div>
+}
+else
+{
+    foreach (var c in Model.Recent)
+    {
+
+
+        <div class="row" style="border: solid 1px #eee; margin: 5px;">
+            <div class="col-sm-3 col-xs-6">
+                <div class="media">
+                    <div class="media-left">
+                        <img src="~/Content/Images/Maker.png"/>
+                    </div>
+                    <div class="media-body">
+                        @c.Maker1Name<br/>@c.Maker2Name
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3 col-xs-6">
+                <div class="media">
+                    <div class="media-left">
+                        <img src="~/Content/Images/Recipient.png"/>
+                    </div>
+                    <div class="media-body">
+                        @c.Recipient1Name <br/>@c.Recipient2Name
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-xs-12"><span class="pull-right"><small>Reported by <strong>@c.ReporterName</strong></small></span></div>
+        </div>
+    }
+}

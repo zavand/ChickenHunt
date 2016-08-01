@@ -1,0 +1,53 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Website", "Website\Website.csproj", "{473D1A8B-AF7E-42CA-AE9C-7AB2F65675E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MvcManana", "..\MvcManana\MvcManana.csproj", "{2EDB36CD-7C16-4C4B-94A4-511A7932058A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Prod|Any CPU = Prod|Any CPU
+		Release.Cloud.Prod|Any CPU = Release.Cloud.Prod|Any CPU
+		Release.Cloud.Test|Any CPU = Release.Cloud.Test|Any CPU
+		Release|Any CPU = Release|Any CPU
+		Test|Any CPU = Test|Any CPU
+		Web.Release.Cloud.Prod|Any CPU = Web.Release.Cloud.Prod|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{473D1A8B-AF7E-42CA-AE9C-7AB2F65675E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{473D1A8B-AF7E-42CA-AE9C-7AB2F65675E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{473D1A8B-AF7E-42CA-AE9C-7AB2F65675E8}.Prod|Any CPU.ActiveCfg = Release|Any CPU
+		{473D1A8B-AF7E-42CA-AE9C-7AB2F65675E8}.Prod|Any CPU.Build.0 = Release|Any CPU
+		{473D1A8B-AF7E-42CA-AE9C-7AB2F65675E8}.Release.Cloud.Prod|Any CPU.ActiveCfg = Release|Any CPU
+		{473D1A8B-AF7E-42CA-AE9C-7AB2F65675E8}.Release.Cloud.Prod|Any CPU.Build.0 = Release|Any CPU
+		{473D1A8B-AF7E-42CA-AE9C-7AB2F65675E8}.Release.Cloud.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{473D1A8B-AF7E-42CA-AE9C-7AB2F65675E8}.Release.Cloud.Test|Any CPU.Build.0 = Release|Any CPU
+		{473D1A8B-AF7E-42CA-AE9C-7AB2F65675E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{473D1A8B-AF7E-42CA-AE9C-7AB2F65675E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{473D1A8B-AF7E-42CA-AE9C-7AB2F65675E8}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{473D1A8B-AF7E-42CA-AE9C-7AB2F65675E8}.Test|Any CPU.Build.0 = Release|Any CPU
+		{473D1A8B-AF7E-42CA-AE9C-7AB2F65675E8}.Web.Release.Cloud.Prod|Any CPU.ActiveCfg = Release|Any CPU
+		{473D1A8B-AF7E-42CA-AE9C-7AB2F65675E8}.Web.Release.Cloud.Prod|Any CPU.Build.0 = Release|Any CPU
+		{2EDB36CD-7C16-4C4B-94A4-511A7932058A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2EDB36CD-7C16-4C4B-94A4-511A7932058A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2EDB36CD-7C16-4C4B-94A4-511A7932058A}.Prod|Any CPU.ActiveCfg = Prod|Any CPU
+		{2EDB36CD-7C16-4C4B-94A4-511A7932058A}.Prod|Any CPU.Build.0 = Prod|Any CPU
+		{2EDB36CD-7C16-4C4B-94A4-511A7932058A}.Release.Cloud.Prod|Any CPU.ActiveCfg = Release.Cloud.Prod|Any CPU
+		{2EDB36CD-7C16-4C4B-94A4-511A7932058A}.Release.Cloud.Prod|Any CPU.Build.0 = Release.Cloud.Prod|Any CPU
+		{2EDB36CD-7C16-4C4B-94A4-511A7932058A}.Release.Cloud.Test|Any CPU.ActiveCfg = Release.Cloud.Test|Any CPU
+		{2EDB36CD-7C16-4C4B-94A4-511A7932058A}.Release.Cloud.Test|Any CPU.Build.0 = Release.Cloud.Test|Any CPU
+		{2EDB36CD-7C16-4C4B-94A4-511A7932058A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2EDB36CD-7C16-4C4B-94A4-511A7932058A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2EDB36CD-7C16-4C4B-94A4-511A7932058A}.Test|Any CPU.ActiveCfg = Test|Any CPU
+		{2EDB36CD-7C16-4C4B-94A4-511A7932058A}.Test|Any CPU.Build.0 = Test|Any CPU
+		{2EDB36CD-7C16-4C4B-94A4-511A7932058A}.Web.Release.Cloud.Prod|Any CPU.ActiveCfg = Web.Release.Cloud.Prod|Any CPU
+		{2EDB36CD-7C16-4C4B-94A4-511A7932058A}.Web.Release.Cloud.Prod|Any CPU.Build.0 = Web.Release.Cloud.Prod|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

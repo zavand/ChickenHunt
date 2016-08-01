@@ -1,0 +1,22 @@
+﻿@model ChickenHunt.Website.Controllers.Templates.Actions.SignUp.Model
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Welcome to Chicken Hunt!</title>
+</head>
+<body>
+<div style="text-align: center;">
+    <img src="@String.Format("{0}://{1}/Content/Images/Logo.png",Request.Url.Scheme,Request.Url.Authority)" />
+    <p>User <strong>@Model.GetRoute().Name</strong> has been registered.
+    </p>
+    <p>All notifications will be sent to <a href="mailto:@Model.GetRoute().Email">@Model.GetRoute().Email</a>
+    </p>
+</div>
+</body>
+</html>

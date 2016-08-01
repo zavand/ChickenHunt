@@ -1,0 +1,33 @@
+﻿@model ChickenHunt.Website.Controllers.Sign.Actions.Up.Model
+
+@{
+    ViewBag.Title = "Sign Up";
+}
+
+<div class="row">
+    <div class="col-sm-offset-3 col-sm-6 col-md-offset-4 col-md-4">
+        <h2>Sign Up</h2>
+        @using (Html.BeginForm())
+        {
+            @Html.ValidationSummary()
+            <div class="form-group">
+                <label>Name</label>
+                @Html.TextBoxFor(m => m.Post.Name, new {@class = "form-control", placeholder = "James Bond" })
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                @Html.TextBoxFor(m => m.Post.Email, new {@class = "form-control", placeholder="Email first.last@qpaynet.com"})
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                @Html.PasswordFor(m => m.Post.Password, new {@class = "form-control"})
+            </div>
+            <div class="form-group">
+                <label>Retype Password</label>
+                @Html.PasswordFor(m => m.Post.PasswordRetype, new {@class = "form-control"})
+            </div>
+            <button type="submit" class="btn btn-primary">Sign Up</button>
+            @Html.ActionLink("Cancel", Model.GetRoute(), ChickenHunt.Website.Controllers.Home.Actions.Index.Route.Create(), new {@class = "btn btn-default"})
+        }
+    </div>
+</div>
