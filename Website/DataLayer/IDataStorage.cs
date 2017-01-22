@@ -68,6 +68,7 @@ namespace ChickenHunt.Website.DataLayer
 
     public class RecentChickenRecord
     {
+        public DateTime Date { get; set; }
         public int Recipient1ID { get; set; }
         public string Recipient1Name { get; set; }
         public int Recipient2ID { get; set; }

@@ -1,0 +1,169 @@
+﻿@using System.Web.UI.WebControls
+@model ChickenHunt.Website.Controllers.Home.Actions.Chicken2.Model
+
+@{
+    ViewBag.Title = "Chicken!";
+}
+
+<style>
+    table {  
+    border-collapse: collapse;
+}
+table.text-left td {
+    padding: 5px;
+}
+</style>
+
+
+@using (Html.BeginForm())
+{
+
+    <div class="text-center">
+        <h2>Chicken! <small>Lunch is ready!</small></h2>
+        @Html.ActionLink("Old version", Model.GetRoute(), ChickenHunt.Website.Controllers.Home.Actions.Chicken.Route.Create(), new { @class = "btn btn-sm btn-default" })<br/><br/>
+        <div ng-app="ChickenApp" ng-controller="UserSelectionController" style="margin: auto;">
+
+            @*            @Html.HiddenFor(m=>m.Post.Date,new {value= "{{getDate()}}" })*@
+            <input name="Post.Date" type="hidden" value="{{getDate()}}" />
+            <input name="Post.Recipients" type="hidden" value="{{recipients}}" />
+            <input name="Post.Makers" type="hidden" value="{{makers}}" />
+
+            @*        <h4>{{getDate()}}</h4>*@
+            <div style="display:inline-block; min-height:290px;">
+                <div uib-datepicker ng-model="dt" class="well well-sm" datepicker-options="options"></div>
+            </div>
+
+            <table style="margin: auto;" class="text-left">
+                <tr ng-repeat="(index,hunter) in hunters" ng-hide="recipients.length==2&&makers.length==2&&!isRecipient(hunter.ID)&&!isMaker(hunter.ID)">
+                    <td>{{hunter.Name}}</td>
+                    <td>
+                        <button type="button" ng-click="RecipientClick(hunter.ID)" class="btn btn-default" ng-show="isRecipientButtonVisible(hunter.ID)">
+
+
+                            <img src="~/Content/Images/Recipient.png" /><span class="hidden-xs"> Recipient</span><span style="color: #008000;" ng-show="isRecipient(hunter.ID)"> <i class="fa fa-check" aria-hidden="true"></i></span>
+                        </button>
+                        <button type="button" ng-click="MakerClick(hunter.ID)" class="btn btn-default" ng-show="isMakerButtonVisible(hunter.ID)">
+
+                            <img src="~/Content/Images/Maker.png" /><span class="hidden-xs"> Maker</span><span style="color: #008000;" ng-show="isMaker(hunter.ID)"> <i class="fa fa-check" aria-hidden="true"></i></span>
+                        </button>
+                    </td>
+                </tr>
+            </table>
+
+            <div class="form-group">
+                <label>Reported by</label>
+                <p>@Model.CurrentHunter.Name</p>
+            </div>
+            <button type="submit" class="btn btn-primary" ng-disabled="recipients.length!=2 || makers.length!=2">Report Chicken!</button>
+            @Html.ActionLink("Cancel", Model.GetRoute(), ChickenHunt.Website.Controllers.Home.Actions.Index.Route.Create(), new { @class = "btn btn-default" })
+        </div>
+    </div>
+}
+
+@section scripts
+{
+    <script>
+        var app = angular.module('ChickenApp', ['ui.bootstrap']);
+
+        app.controller("UserSelectionController",
+        [
+            "$scope",
+            function($scope) {
+                $scope.recipients = [];
+                $scope.makers = [];
+
+                $scope.dt = new Date();
+                $scope.options = {
+                    //customClass: getDayClass,
+                    //minDate: new Date(),
+                    showWeeks: true
+                };
+
+                $scope.getDate = function() {
+                    return $scope.dt.getFullYear() + "-" + ($scope.dt.getMonth()+1) + "-" + $scope.dt.getDate();
+                }
+
+                $scope.hunters = [
+                    @Html.Raw(String.Join(",", Model.Recipients.Where(m => m.ID > 0).Select(m => $"{{ID:{m.ID},Name:'{m.Name}'}}")))
+                ];
+                $scope.RecipientClick = function(hunterID) {
+                    if ($scope.isRecipient(hunterID)) {
+                        // Remove
+                        for (var i = 0; i < $scope.recipients.length; i++) {
+                            if ($scope.recipients[i] == hunterID) {
+                                $scope.recipients.splice(i, 1);
+                                break;
+                            }
+                        }
+                    } else {
+                        // Add
+                        $scope.recipients.push(hunterID);
+                    }
+
+                    $("body").focus();
+                }
+                $scope.MakerClick = function(hunterID) {
+                    if ($scope.isMaker(hunterID)) {
+                        // Remove
+                        for (var i = 0; i < $scope.makers.length; i++) {
+                            if ($scope.makers[i] == hunterID) {
+                                $scope.makers.splice(i, 1);
+                                break;
+                            }
+                        }
+                    } else {
+                        // Add
+                        $scope.makers.push(hunterID);
+                    }
+                    $("body").focus();
+                }
+                $scope.isRecipientButtonVisible = function(hunterID) {
+
+                    if ($scope.isMaker(hunterID))
+                        return false;
+                    if ($scope.recipients.length < 2) {
+                        return true;
+                    }
+                    return $scope.isRecipient(hunterID);
+                }
+                $scope.isMakerButtonVisible = function(hunterID) {
+                    if ($scope.isRecipient(hunterID))
+                        return false;
+                    if ($scope.makers.length < 2) {
+                        return true;
+                    }
+                    return $scope.isMaker(hunterID);
+                }
+                $scope.isRecipient = function(hunterID) {
+
+                    for (var i = 0; i < $scope.recipients.length; i++) {
+                        if ($scope.recipients[i] == hunterID)
+                            return true;
+                    }
+                    return false;
+                }
+                $scope.isMaker = function(hunterID) {
+
+                    for (var i = 0; i < $scope.makers.length; i++) {
+                        if ($scope.makers[i] == hunterID)
+                            return true;
+                    }
+                    return false;
+                }
+                // makers.length == 2
+
+
+//                $scope.AutoPromoteConfiguration = true;
+//                $scope.RefreshPeriod = 5000;
+//                $scope.RefreshPeriodAfterError = 10000;
+//                $scope.RefreshPeriods = [
+//                    { name: '1 second', value: 1000 }, { name: '2 seconds', value: 2000 },
+//                    { name: '5 seconds', value: 5000 }, { name: '10 seconds', value: 10000 },
+//                    { name: '30 seconds', value: 30000 }, { name: '1 minute', value: 60000 }
+//                ];
+
+            }
+        ]);
+
+    </script>
+}

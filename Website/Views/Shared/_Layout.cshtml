@@ -8,9 +8,10 @@
     <title>Chicken Hunt @(string.IsNullOrEmpty(@ViewBag.Title) ? "" : " - ")@ViewBag.Title</title>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
-    @*    <link rel="icon" href="/favicon.ico" type="image/x-icon" />*@
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
     <link href="~/css/font-awesome.min.css" rel="stylesheet" />
+    <script src="~/Scripts/angular.min.js"></script>
+    <script src="~/Scripts/angular-ui/ui-bootstrap-tpls.min.js"></script>
 </head>
 <style>
     .navbar-brand>img {
@@ -31,7 +32,7 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("Chicken!", Model.GetRoute(), ChickenHunt.Website.Controllers.Home.Actions.Chicken.Route.Create())</li>
+                    <li>@Html.ActionLink("Chicken!", Model.GetRoute(), ChickenHunt.Website.Controllers.Home.Actions.Chicken2.Route.Create())</li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
 

@@ -15,7 +15,7 @@
     </div>
 </div>
 <div class="text-center hidden-print">
-    <a href="@Url.RouteUrl(Model.GetRoute(), ChickenHunt.Website.Controllers.Home.Actions.Chicken.Route.Create())" class="btn btn-default">
+    <a href="@Url.RouteUrl(Model.GetRoute(), ChickenHunt.Website.Controllers.Home.Actions.Chicken2.Route.Create())" class="btn btn-default">
         <img src="~/Content/Images/LogoIcon.png"/> Report chicken</a>
 </div>
 <br/>
@@ -95,12 +95,44 @@
 }
 else
 {
+@*    <table class="table table-hover table-responsive">*@
+@*        <tr>*@
+@*            <th>Makers</th>*@
+@*            <th>Recipients</th>*@
+@*            <th>Reported by</th>*@
+@*        </tr>*@
+@*        @foreach (var c in Model.Recent)*@
+@*        {*@
+@*            <tr>*@
+@*                <td>*@
+@*                    <div class="media">*@
+@*                        <div class="media-left">*@
+@*                            <img src="~/Content/Images/Maker.png"/>*@
+@*                        </div>*@
+@*                        <div class="media-body">*@
+@*                            @c.Maker1Name<br/>@c.Maker2Name*@
+@*                        </div>*@
+@*                    </div>*@
+@*                </td>*@
+@*                <td>*@
+@*                    <div class="media">*@
+@*                        <div class="media-left">*@
+@*                            <img src="~/Content/Images/Recipient.png"/>*@
+@*                        </div>*@
+@*                        <div class="media-body">*@
+@*                            @c.Recipient1Name <br/>@c.Recipient2Name*@
+@*                        </div>*@
+@*                    </div> </td>*@
+@*                <td>@c.ReporterName</td>*@
+@*            </tr>*@
+@*        }*@
+@*    </table>*@
     foreach (var c in Model.Recent)
     {
 
 
         <div class="row" style="border: solid 1px #eee; margin: 5px;">
-            <div class="col-sm-3 col-xs-6">
+            <div class="col-sm-4 col-xs-6 col-md-4">
                 <div class="media">
                     <div class="media-left">
                         <img src="~/Content/Images/Maker.png"/>
@@ -110,7 +142,7 @@ else
                     </div>
                 </div>
             </div>
-            <div class="col-sm-3 col-xs-6">
+            <div class="col-sm-4 col-xs-6 col-md-4">
                 <div class="media">
                     <div class="media-left">
                         <img src="~/Content/Images/Recipient.png"/>
@@ -120,7 +152,19 @@ else
                     </div>
                 </div>
             </div>
-            <div class="col-sm-12 col-xs-12"><span class="pull-right"><small>Reported by <strong>@c.ReporterName</strong></small></span></div>
+            <div class="col-sm-4 col-xs-12 col-md-4"><span class="pull-right text-right"><small>Reported by <strong>@c.ReporterName</strong><br/>
+                
+                @if (c.Date.Date == DateTime.Now.Date)
+                {
+                    <text>
+                                                                                     <span class="label label-success">Today</span>
+                    </text>
+                }
+                else
+                {
+                    @c.Date.ToLongDateString()
+                }
+                </small></span></div>
         </div>
     }
 }

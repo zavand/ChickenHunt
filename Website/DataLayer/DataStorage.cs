@@ -411,6 +411,7 @@ order by c.Date desc, c.Chickens desc, h.Name
                             Maker2Name = r.GetString("Maker2Name"),
                             ReporterID = r.GetInt32("ReporterID"),
                             ReporterName = r.GetString("ReporterName"),
+                            Date = r.GetDateTime("CreateDate"),
                         });
                     },
                     $@"

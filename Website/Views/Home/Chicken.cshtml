@@ -5,7 +5,7 @@
     ViewBag.Title = "Chicken!";
 }
 
-<h2>Chicken! <small>Lunch is ready!</small></h2>
+<h2>Chicken! <small>Lunch is ready!</small>@Html.ActionLink("New version", Model.GetRoute(), ChickenHunt.Website.Controllers.Home.Actions.Chicken2.Route.Create(), new { @class = "pull-right btn btn-sm btn-default" })</h2>
 @using (Html.BeginForm())
 {
     @Html.ValidationSummary()
