@@ -8,7 +8,7 @@
         <h2>Served chickens</h2>
         <table class="table table-condensed table-hover">
             <tr>
-                <th>#</th>
+@*                <th>#</th>*@
                 <th>Date</th>
                 <th colspan="2" style="text-align: center;">Made by</th>
                 <th colspan="2" style="text-align: center;">for</th>
@@ -21,14 +21,17 @@
             {
                 if (d == DateTime.MinValue || d.Month != g.Date.Month)
                 {
+                    counter = 1;
                     <tr>
-                        <td colspan="6" style="background-color: gold; font-weight: bold;">@g.Date.ToString("MMM, yyyy")</td>
+                        <td colspan="6" style="background-color: gold; font-weight: bold;">@g.Date.ToString("MMM, yyyy")
+                            <span class="pull-right">@Model.Games.Count(m =>m.Date.Year == g.Date.Year && m.Date.Month == g.Date.Month && (m.Maker1ID == Model.GetRoute().ID || m.Maker2ID == Model.GetRoute().ID))</span>
+                        </td>
                     </tr>
                 }
                 d = g.Date;
                 <tr>
-                    <td>@counter.ToString("#,0")</td>
-                    <td title="@g.Date">@g.Date.ToString("d")</td>
+@*                    <td>@counter.ToString("#,0")</td>*@
+                    <td title="@g.Date">@g.Date.ToString("d, ddd")</td>
                     <td style="background-color: @(g.Maker1ID==Model.GetRoute().ID?"lightgreen":"inherit");">@g.Maker1Name</td>
                     <td style="background-color: @(g.Maker2ID==Model.GetRoute().ID?"lightgreen":"inherit");">@g.Maker2Name</td>
                     <td>@g.Recipient1Name</td>
@@ -42,7 +45,7 @@
         <h2>Received chickens</h2>
         <table class="table table-condensed table-hover">
             <tr>
-                <th>#</th>
+@*                <th>#</th>*@
                 <th>Date</th>
                 <th colspan="2" style="text-align: center;">Made by</th>
                 <th colspan="2" style="text-align: center;">for</th>
@@ -56,13 +59,15 @@
                 if (d == DateTime.MinValue || d.Month != g.Date.Month)
                 {
                     <tr>
-                        <td colspan="6" style="background-color: gold; font-weight: bold;">@g.Date.ToString("MMM, yyyy")</td>
+                        <td colspan="6" style="background-color: gold; font-weight: bold;">@g.Date.ToString("MMM, yyyy")
+                            <span class="pull-right">@Model.Games.Count(m => m.Date.Year == g.Date.Year && m.Date.Month == g.Date.Month && (m.Recipient1ID == Model.GetRoute().ID || m.Recipient2ID == Model.GetRoute().ID))</span>
+                        </td>
                     </tr>
                 }
                 d = g.Date;
                 <tr>
-                    <td>@counter.ToString("#,0")</td>
-                    <td title="@g.Date">@g.Date.ToString("d")</td>
+@*                    <td>@counter.ToString("#,0")</td>*@
+                    <td title="@g.Date">@g.Date.ToString("d, ddd")</td>
                     <td>@g.Maker1Name</td>
                     <td>@g.Maker2Name</td>
                     <td style="background-color: @(g.Recipient1ID==Model.GetRoute().ID?"bisque":"inherit");">@g.Recipient1Name</td>

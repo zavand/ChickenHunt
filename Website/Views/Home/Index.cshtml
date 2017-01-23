@@ -28,7 +28,7 @@
             {
                 var d = DateTime.Today.AddDays(-DateTime.Today.Day + 1);
 
-                for (int i = 0; i < 6; i++)
+                for (int i = 0; i < maxMonths; i++)
                 {
                     var d1 = d.AddMonths(-i);
 
@@ -42,11 +42,11 @@
                     }
                     if (insertYear)
                     {
-                        <th class="@(i > 1 ? "hidden-sm hidden-xs" : "") text-center" style="background-color: gold;">
+                        <th class="text-center" style="background-color: gold;">
                             @d.AddMonths(-i).Year
                         </th>
                     }
-                    <th class="@(i > 1 ? "hidden-sm hidden-xs" : "")">
+                    <th class="text-center @(i > 0 ? "hidden-sm hidden-xs" : "")">
                         @d1.ToString("MMMM")<span class="visible-print-inline">@d1.ToString(", yyyy")</span></th>
                 }
             }
@@ -85,7 +85,7 @@
                             var year = currentMonth.AddMonths(-i).Year;
                             var repYear = Model.Report.Where(m => m.HunterID == hunter.HunterID && m.Date.Year == year).Sum(m=>m.Chickens);
                             var repYearMade = Model.Recent.Count(m => m.Date.Year == month.Year && (m.Maker1ID == hunter.HunterID || m.Maker2ID == hunter.HunterID));
-                            <td style="background-color: khaki; text-align: center;">
+                            <td style="background-color: khaki;" class="text-nowrap text-center">
                                 @repYear.ToString("#,0") / @repYearMade.ToString("#,0")
                             </td>
                         }
@@ -103,22 +103,26 @@
                         var repMadeChickens = Model.Recent.Count(m => m.Date.Year == month.Year && m.Date.Month == month.Month && (m.Maker1ID == hunter.HunterID || m.Maker2ID == hunter.HunterID));
 
 
-                            <td class="@(i > 1 ? "hidden-sm hidden-xs" : "")" @*style="@(rep.Chickens == 0 ? "color:#ddd;" : "")"*@>
+                            <td class="text-center @(i > 0 ? "hidden-sm hidden-xs" : "")" @*style="@(rep.Chickens == 0 ? "color:#ddd;" : "")"*@>
                                 <div class="text-center" style="display: inline-block;">
-                                    <span style="color: red;">@rep.Chickens</span> /
-                                    <span style="color: green;">@repMadeChickens</span>
-                                    @if (rep.Chickens >= 10)
+                                    <div>
+                                        <span style="color: red;">@rep.Chickens</span> /
+                                        <span style="color: green;">@repMadeChickens</span>
+                                    </div>
+                                    @if (rep.Chickens >= 5)
                                     {
                                         <span>
-                                            @for (int j = 0; j < rep.Chickens / 10; j++)
+                                            @for (int j = 0; j < rep.Chickens / 5; j++)
                                             {
-                                                <img src="~/Content/Images/rating.png" title="@((j + 1) * 10)+"/>
+                                                <img src="~/Content/Images/rating.png" title="@((j + 1) * 5)+"/>
                                             }
                                         </span>
                                     }
                                     @if (month == currentMonth && rep.Today > 0)
                                     {
-                                        <span class="label label-success"><i class="fa fa-line-chart" aria-hidden="true"></i> +@rep.Today</span>
+                                        <div>
+                                            <span class="label label-success"><i class="fa fa-line-chart" aria-hidden="true"></i> +@rep.Today</span>
+                                        </div>
                                     }
                                 </div>
                         </td>
