@@ -42,7 +42,7 @@
                     }
                     if (insertYear)
                     {
-                        <th class="@(i > 1 ? "hidden-sm hidden-xs" : "")" style="background-color: gold;">
+                        <th class="@(i > 1 ? "hidden-sm hidden-xs" : "") text-center" style="background-color: gold;">
                             @d.AddMonths(-i).Year
                         </th>
                     }
@@ -84,8 +84,9 @@
                         {
                             var year = currentMonth.AddMonths(-i).Year;
                             var repYear = Model.Report.Where(m => m.HunterID == hunter.HunterID && m.Date.Year == year).Sum(m=>m.Chickens);
+                            var repYearMade = Model.Recent.Count(m => m.Date.Year == month.Year && (m.Maker1ID == hunter.HunterID || m.Maker2ID == hunter.HunterID));
                             <td style="background-color: khaki; text-align: center;">
-                                @repYear.ToString("#,0")
+                                @repYear.ToString("#,0") / @repYearMade.ToString("#,0")
                             </td>
                         }
 
@@ -99,7 +100,6 @@
                                 Today = 0
                             };
                         }
-                        var repMadeChickens1 = Model.Recent.Where(m => m.Date.Year == month.Year && m.Date.Month == month.Month && (m.Maker1ID == hunter.HunterID || m.Maker2ID == hunter.HunterID)).ToArray();
                         var repMadeChickens = Model.Recent.Count(m => m.Date.Year == month.Year && m.Date.Month == month.Month && (m.Maker1ID == hunter.HunterID || m.Maker2ID == hunter.HunterID));
 
 
