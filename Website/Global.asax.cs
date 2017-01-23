@@ -68,6 +68,8 @@ namespace ChickenHunt.Website
 
             routes.MapRoute<Website.Controllers.Templates.Actions.SignUp.Route>(IsLocalizationSupported);
             routes.MapRoute<Website.Controllers.Templates.Actions.ForgotPassword.Route>(IsLocalizationSupported);
+
+            routes.MapRoute<Website.Controllers.Hunter.Actions.Index.Route>(IsLocalizationSupported);
         }
     }
 }

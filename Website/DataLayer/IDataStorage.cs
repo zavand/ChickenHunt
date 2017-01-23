@@ -23,6 +23,13 @@ namespace ChickenHunt.Website.DataLayer
         void UpdateResetPasswordCode(string email, string passwordResetCode);
         void UpdatePassword(int hunterID, string password);
         RecentChickenRecord[] GetRecentChickens();
+
+        /// <summary>
+        ///  Returns list of chickens where hunter participated
+        /// </summary>
+        /// <param name="hunterID"></param>
+        /// <returns></returns>
+        RecentChickenRecord[] GetHunterGames(int hunterID);
     }
 
     public class ChickenHuntReport

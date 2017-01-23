@@ -428,7 +428,54 @@ join hunter hm1 on hm1.ID = c.ChickenMakerID1
 join hunter hm2 on hm2.ID = c.ChickenMakerID2
 join hunter hr on hr.ID = c.ReportedByHunterID
 order by c.CreateDate desc 
-Limit 10;
+-- Limit 10
+;
+"
+                    );
+            }
+            return rr.ToArray();
+        }
+
+        public RecentChickenRecord[] GetHunterGames(int hunterID)
+        {
+            var rr = new List<RecentChickenRecord>();
+            using (var c = new MySqlConnection(ConnectionString))
+            {
+                c.Open();
+
+                c.ExecuteReader(
+                    r =>
+                    {
+                        rr.Add(new RecentChickenRecord
+                        {
+                            Recipient1ID = r.GetInt32("Recipient1ID"),
+                            Recipient1Name = r.GetString("Recipient1Name"),
+                            Recipient2ID = r.GetInt32("Recipient2ID"),
+                            Recipient2Name = r.GetString("Recipient2Name"),
+                            Maker1ID = r.GetInt32("Maker1ID"),
+                            Maker1Name = r.GetString("Maker1Name"),
+                            Maker2ID = r.GetInt32("Maker2ID"),
+                            Maker2Name = r.GetString("Maker2Name"),
+                            ReporterID = r.GetInt32("ReporterID"),
+                            ReporterName = r.GetString("ReporterName"),
+                            Date = r.GetDateTime("CreateDate"),
+                        });
+                    },
+                    $@"
+select c.*,
+hr1.ID as 'Recipient1ID',hr1.Name as 'Recipient1Name',
+hr2.ID as 'Recipient2ID',hr2.Name as 'Recipient2Name',
+hm1.ID as 'Maker1ID',hm1.Name as 'Maker1Name',
+hm2.ID as 'Maker2ID',hm2.Name as 'Maker2Name',
+hr.ID as 'ReporterID',hr.Name as 'ReporterName'
+from chicken c
+join hunter hr1 on hr1.ID = c.ChickenRecipientID1
+join hunter hr2 on hr2.ID = c.ChickenRecipientID2
+join hunter hm1 on hm1.ID = c.ChickenMakerID1
+join hunter hm2 on hm2.ID = c.ChickenMakerID2
+join hunter hr on hr.ID = c.ReportedByHunterID
+where c.ChickenRecipientID1={hunterID} or c.ChickenRecipientID2={hunterID} or c.ChickenMakerID1={hunterID} or c.ChickenMakerID2={hunterID}
+order by c.CreateDate desc ;
 "
                     );
             }

@@ -24,12 +24,28 @@
         <th>Hunter</th>
 
         @{
+            var maxMonths = 6;
             {
                 var d = DateTime.Today.AddDays(-DateTime.Today.Day + 1);
 
                 for (int i = 0; i < 6; i++)
                 {
                     var d1 = d.AddMonths(-i);
+
+                    var insertYear = false;
+
+                    if (i == 0 && d.AddMonths(-i).Month>1 || d.AddMonths(-i).Year != d.AddMonths(-i + 1).Year)
+                    {
+                        insertYear = true;
+                        //maxMonths--;
+                        var a = 0;
+                    }
+                    if (insertYear)
+                    {
+                        <th class="@(i > 1 ? "hidden-sm hidden-xs" : "")" style="background-color: gold;">
+                            @d.AddMonths(-i).Year
+                        </th>
+                    }
                     <th class="@(i > 1 ? "hidden-sm hidden-xs" : "")">
                         @d1.ToString("MMMM")<span class="visible-print-inline">@d1.ToString(", yyyy")</span></th>
                 }
@@ -50,11 +66,29 @@
     }))
     {
             <tr>
-                <td>@hunter.HunterName</td>
+                <td>@Html.ActionLink(hunter.HunterName,Model.GetRoute(), ChickenHunt.Website.Controllers.Hunter.Actions.Index.Route.Create(hunter.HunterID))</td>
                 @{
-                    for (int i = 0; i < 6; i++)
+                    for (int i = 0; i < maxMonths; i++)
                     {
                         var month = currentMonth.AddMonths(-i);
+                        var insertYear = false;
+
+                        if (i== 0 && currentMonth.AddMonths(-i).Month > 1 || currentMonth.AddMonths(-i).Year != currentMonth.AddMonths(-i + 1).Year)
+                        {
+                            insertYear = true;
+                            //maxMonths--;
+                            var a = 0;
+                        }
+
+                        if (insertYear)
+                        {
+                            var year = currentMonth.AddMonths(-i).Year;
+                            var repYear = Model.Report.Where(m => m.HunterID == hunter.HunterID && m.Date.Year == year).Sum(m=>m.Chickens);
+                            <td style="background-color: khaki; text-align: center;">
+                                @repYear.ToString("#,0")
+                            </td>
+                        }
+
                         var rep = Model.Report.FirstOrDefault(m => m.HunterID == hunter.HunterID && m.Date == month);
                         if (rep == null)
                         {
@@ -65,22 +99,28 @@
                                 Today = 0
                             };
                         }
+                        var repMadeChickens1 = Model.Recent.Where(m => m.Date.Year == month.Year && m.Date.Month == month.Month && (m.Maker1ID == hunter.HunterID || m.Maker2ID == hunter.HunterID)).ToArray();
+                        var repMadeChickens = Model.Recent.Count(m => m.Date.Year == month.Year && m.Date.Month == month.Month && (m.Maker1ID == hunter.HunterID || m.Maker2ID == hunter.HunterID));
 
-                        <td class="@(i > 1 ? "hidden-sm hidden-xs" : "")" style="@(rep.Chickens == 0 ? "color:#ddd;" : "")">
-                            <div class="text-center" style="width: 2em; display: inline-block;">@rep.Chickens</div>
-                            @if (rep.Chickens >= 5)
-                            {
-                                <span>
-                                @for (int j = 0; j < rep.Chickens / 5; j++)
-                                {
-                                    <img src="~/Content/Images/rating.png" title="@((j + 1)*5)+" />
-                                }
-                                </span>
-                            }
-                            @if (month == currentMonth && rep.Today > 0)
-                            {
-                                <span class="label label-success"><i class="fa fa-line-chart" aria-hidden="true"></i> +@rep.Today today </span>
-                            }
+
+                            <td class="@(i > 1 ? "hidden-sm hidden-xs" : "")" @*style="@(rep.Chickens == 0 ? "color:#ddd;" : "")"*@>
+                                <div class="text-center" style="display: inline-block;">
+                                    <span style="color: red;">@rep.Chickens</span> /
+                                    <span style="color: green;">@repMadeChickens</span>
+                                    @if (rep.Chickens >= 10)
+                                    {
+                                        <span>
+                                            @for (int j = 0; j < rep.Chickens / 10; j++)
+                                            {
+                                                <img src="~/Content/Images/rating.png" title="@((j + 1) * 10)+"/>
+                                            }
+                                        </span>
+                                    }
+                                    @if (month == currentMonth && rep.Today > 0)
+                                    {
+                                        <span class="label label-success"><i class="fa fa-line-chart" aria-hidden="true"></i> +@rep.Today</span>
+                                    }
+                                </div>
                         </td>
                     }
                 }
@@ -88,46 +128,30 @@
         }
     }
 </table>
-<h2 class="text-center">Recent chickens</h2>
+<h2 class="text-center"><a name="RecentChickens"></a>Recent chickens</h2>
 @if (Model.Recent.Length == 0)
 {
     <div class="alert alert-info">No records found</div>
 }
 else
 {
-@*    <table class="table table-hover table-responsive">*@
-@*        <tr>*@
-@*            <th>Makers</th>*@
-@*            <th>Recipients</th>*@
-@*            <th>Reported by</th>*@
-@*        </tr>*@
-@*        @foreach (var c in Model.Recent)*@
-@*        {*@
-@*            <tr>*@
-@*                <td>*@
-@*                    <div class="media">*@
-@*                        <div class="media-left">*@
-@*                            <img src="~/Content/Images/Maker.png"/>*@
-@*                        </div>*@
-@*                        <div class="media-body">*@
-@*                            @c.Maker1Name<br/>@c.Maker2Name*@
-@*                        </div>*@
-@*                    </div>*@
-@*                </td>*@
-@*                <td>*@
-@*                    <div class="media">*@
-@*                        <div class="media-left">*@
-@*                            <img src="~/Content/Images/Recipient.png"/>*@
-@*                        </div>*@
-@*                        <div class="media-body">*@
-@*                            @c.Recipient1Name <br/>@c.Recipient2Name*@
-@*                        </div>*@
-@*                    </div> </td>*@
-@*                <td>@c.ReporterName</td>*@
-@*            </tr>*@
-@*        }*@
-@*    </table>*@
-    foreach (var c in Model.Recent)
+    <text>
+        <div class="row">
+            <div class="col-sm-12 text-center">
+                @{ var size = 10; }
+                <a href="@Url.RouteUrl(Model.GetRoute(),ChickenHunt.Website.Controllers.Home.Actions.Index.Route.Create(size))#RecentChickens" class="btn btn-sm @(Model.RecentChickens == size ? " btn-primary" : " btn-default")">@size</a>
+                @{ size = 20; }
+                <a href="@Url.RouteUrl(Model.GetRoute(),ChickenHunt.Website.Controllers.Home.Actions.Index.Route.Create(size))#RecentChickens" class="btn btn-sm @(Model.RecentChickens == size ? " btn-primary" : " btn-default")">@size</a>
+                @{ size = 25; }
+                <a href="@Url.RouteUrl(Model.GetRoute(),ChickenHunt.Website.Controllers.Home.Actions.Index.Route.Create(size))#RecentChickens" class="btn btn-sm @(Model.RecentChickens == size ? " btn-primary" : " btn-default")">@size</a>
+                @{ size = 50; }
+                <a href="@Url.RouteUrl(Model.GetRoute(),ChickenHunt.Website.Controllers.Home.Actions.Index.Route.Create(size))#RecentChickens" class="btn btn-sm @(Model.RecentChickens == size ? " btn-primary" : " btn-default")">@size</a>
+                @{ size = 100; }
+                <a href="@Url.RouteUrl(Model.GetRoute(),ChickenHunt.Website.Controllers.Home.Actions.Index.Route.Create(size))#RecentChickens" class="btn btn-sm @(Model.RecentChickens == size ? " btn-primary" : " btn-default")">@size</a>
+            </div>
+        </div>
+    </text>
+    foreach (var c in Model.Recent.Take(Model.RecentChickens))
     {
 
 

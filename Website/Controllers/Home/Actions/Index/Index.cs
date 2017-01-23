@@ -32,15 +32,26 @@ namespace ChickenHunt.Website.Controllers.Home.Actions.Index
             Action = ActionName;
         }
 
-        public static Route Create()
+        public static Route Create(int? recentChickens = null)
         {
-            return new Route();
+            return new Route { RecentChickens =recentChickens};
         }
+
+        public int? RecentChickens { get; set; }
     }
 
     public class Model : HomeModel<Route, HomeController>
     {
         public ChickenHuntReport[] Report { get; set; }
         public RecentChickenRecord[] Recent { get; set; }
+
+        public override void SetupModel(HomeController controller, Route route)
+        {
+            base.SetupModel(controller, route);
+
+            RecentChickens = route.RecentChickens ?? 10;
+        }
+
+        public int RecentChickens { get; set; }
     }
 }
