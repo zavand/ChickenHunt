@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Website", "Website\Website.csproj", "{473D1A8B-AF7E-42CA-AE9C-7AB2F65675E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MvcManana", "..\MvcManana\MvcManana.csproj", "{2EDB36CD-7C16-4C4B-94A4-511A7932058A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MvcManana", "MvcManana\MvcManana.csproj", "{2EDB36CD-7C16-4C4B-94A4-511A7932058A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

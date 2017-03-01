@@ -307,7 +307,7 @@
     <Content Include="Scripts\jquery-3.1.0.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\MvcManana\MvcManana.csproj">
+    <ProjectReference Include="..\MvcManana\MvcManana.csproj">
       <Project>{2edb36cd-7c16-4c4b-94a4-511a7932058a}</Project>
       <Name>MvcManana</Name>
     </ProjectReference>
