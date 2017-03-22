@@ -187,6 +187,7 @@
     <Compile Include="Common\LoggingModule.cs" />
     <Compile Include="Controllers\Home\Actions\Chicken2\Chicken2.cs" />
     <Compile Include="Controllers\Home\Actions\Chicken\Chicken.cs" />
+    <Compile Include="Controllers\Home\Actions\DeleteChicken\DeleteChicken.cs" />
     <Compile Include="Controllers\Home\Actions\Index\Index.cs" />
     <Compile Include="Controllers\Home\Home.cs" />
     <Compile Include="Controllers\Hunter\Actions\Index\Index.cs" />
@@ -295,6 +296,7 @@
     <Content Include="Views\Sign\ForgotPasswordConfirm.cshtml" />
     <Content Include="Views\Home\Chicken2.cshtml" />
     <Content Include="Views\Hunter\Index.cshtml" />
+    <Content Include="Views\Home\DeleteChicken.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

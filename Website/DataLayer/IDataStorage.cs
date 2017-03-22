@@ -18,7 +18,7 @@ namespace ChickenHunt.Website.DataLayer
         bool IsEmailAvailable(string email);
         ChickenCandidate GetHunterByToken(string token);
         ChickenCandidate[] GetHunters();
-        void UpdateCude(int hunterID, DateTime date);
+        void UpdateCude(int hunterID, DateTime date, int count = 1);
         ChickenHuntReport[] GetReport();
         void UpdateResetPasswordCode(string email, string passwordResetCode);
         void UpdatePassword(int hunterID, string password);
@@ -30,6 +30,9 @@ namespace ChickenHunt.Website.DataLayer
         /// <param name="hunterID"></param>
         /// <returns></returns>
         RecentChickenRecord[] GetHunterGames(int hunterID);
+
+        RecentChickenRecord GetChicken(int chickenID);
+        void DeleteChicken(int chickenID, int hunterID);
     }
 
     public class ChickenHuntReport
@@ -63,7 +66,7 @@ namespace ChickenHunt.Website.DataLayer
         }
     }
 
-    internal class ChickenRecord
+    public class ChickenRecord
     {
         public int ID { get; set; }
         public DateTime CreateDate { get; set; }
@@ -86,6 +89,9 @@ namespace ChickenHunt.Website.DataLayer
         public string Maker2Name { get; set; }
         public int ReporterID { get; set; }
         public string ReporterName { get; set; }
+        public int ID { get; set; }
+        public int? DeletedByHunterID { get; set; }
+        public string DeletedByHunterName { get; set; }
     }
 
     internal class ChickenRecordHistory

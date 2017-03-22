@@ -1,0 +1,94 @@
+﻿@model ChickenHunt.Website.Controllers.Home.Actions.DeleteChicken.Model
+
+@{
+    ViewBag.Title = "Delete Chicken";
+}
+
+<h2>Delete Chicken</h2>
+@if (Model.Chicken == null)
+{
+    <div class="alert alert-danger">Chicken not found
+        @Html.ActionLink("Go to Home", Model.GetRoute(), ChickenHunt.Website.Controllers.Home.Actions.Index.Route.Create(), new { @class = "btn btn-default" })</div>
+}
+else
+{
+    if (Model.Chicken.DeletedByHunterID!=null)
+    {
+        <div class="alert alert-danger">Chicken already deleted
+            @Html.ActionLink("Go to Home", Model.GetRoute(), ChickenHunt.Website.Controllers.Home.Actions.Index.Route.Create(), new { @class = "btn btn-default" })</div>
+    }
+    else if ((DateTime.Now - Model.Chicken.Date) > TimeSpan.FromDays(2))
+    {
+        <div class="alert alert-warning">This chicken was created more than 2 days ago. Only recent chickens can be deleted.
+        @Html.ActionLink("Go to Home", Model.GetRoute(), ChickenHunt.Website.Controllers.Home.Actions.Index.Route.Create(), new { @class = "btn btn-default" })</div>
+    }
+    else
+    {
+        using (Html.BeginForm())
+        {
+            <div style="padding: 10px; border-left: solid 3px red;">
+                <h3 style="padding: 0px; margin: 0px;">Do you want to delete this chicken?</h3>
+
+
+
+
+
+                <div class="row" style="border: solid 1px #eee; margin: 5px;">
+                    <div class="col-sm-4 col-xs-6 col-md-4">
+                        <div class="media">
+                            <div class="media-left">
+                                <img src="~/Content/Images/Maker.png"/>
+                            </div>
+                            <div class="media-body">
+                                @Model.Chicken.Maker1Name<br/>@Model.Chicken.Maker2Name
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4 col-xs-6 col-md-4">
+                        <div class="media">
+                            <div class="media-left">
+                                <img src="~/Content/Images/Recipient.png"/>
+                            </div>
+                            <div class="media-body">
+                                @Model.Chicken.Recipient1Name <br/>@Model.Chicken.Recipient2Name
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4 col-xs-12 col-md-4">
+                        <span class="pull-right text-right">
+                            <small>
+                                Reported by <strong>@Model.Chicken.ReporterName</strong> |
+
+                                @if (Model.Chicken.Date.Date == DateTime.Now.Date)
+                                {
+                                    <text>
+                                        <span class="label label-success">Today</span>
+                                    </text>
+                                }
+                                else
+                                {
+                                    @Model.Chicken.Date.ToLongDateString()
+                                }
+                            </small>
+                        </span>
+                    </div>
+                </div>
+
+
+
+
+
+
+
+                <div style="margin-top: 10px; margin-bottom: 10px;">Your username will be recorded and chicken will be shown as deleted with your name as performer of this deletion.</div>
+                <div>Everyone will see <span class="label label-danger">Deleted by @User.Identity.Name</span>
+                </div>
+                <br/>
+                <div>
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                    @Html.ActionLink("Cancel", Model.GetRoute(), ChickenHunt.Website.Controllers.Home.Actions.Index.Route.Create(), new {@class = "btn btn-default"})
+                </div>
+            </div>
+        }
+    }
+}

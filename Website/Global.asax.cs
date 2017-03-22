@@ -58,6 +58,7 @@ namespace ChickenHunt.Website
             routes.MapRoute<Website.Controllers.Home.Actions.Index.Route>(IsLocalizationSupported);
             routes.MapRoute<Website.Controllers.Home.Actions.Chicken.Route>(IsLocalizationSupported);
             routes.MapRoute<Website.Controllers.Home.Actions.Chicken2.Route>(IsLocalizationSupported);
+            routes.MapRoute<Website.Controllers.Home.Actions.DeleteChicken.Route>(IsLocalizationSupported);
 
             routes.MapRoute<Website.Controllers.Sign.Actions.In.Route>(IsLocalizationSupported);
             routes.MapRoute<Website.Controllers.Sign.Actions.Up.Route>(IsLocalizationSupported);
