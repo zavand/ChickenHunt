@@ -52,7 +52,7 @@ namespace ChickenHunt.Website.Controllers.Home
 
             if (ModelState.IsValid)
             {
-                _dataStorage.InsertChickenRecord(DateTime.Now, post.ChickenRecipient1.Value, post.ChickenRecipient2.Value, post.ChickenMaker1, post.ChickenMaker2, m.CurrentHunter.ID);
+                _dataStorage.InsertChickenRecord(DateTime.Now, DateTime.Now, post.ChickenRecipient1.Value, post.ChickenRecipient2.Value, post.ChickenMaker1, post.ChickenMaker2, m.CurrentHunter.ID);
                 var d=DateTime.Today;
                 d = d.AddDays(-d.Day+1);
                 _dataStorage.UpdateCude(post.ChickenRecipient1.Value,d);

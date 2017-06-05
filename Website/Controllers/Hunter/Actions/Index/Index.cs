@@ -1,4 +1,5 @@
-﻿using System.Web.Mvc;
+﻿using System.Linq;
+using System.Web.Mvc;
 using ChickenHunt.Website.Controllers.Hunter.Actions.Index;
 using ChickenHunt.Website.DataLayer;
 
@@ -15,7 +16,11 @@ namespace ChickenHunt.Website.Controllers.Hunter
 
         void PrepareModel(Model m, Route r)
         {
-            m.Games = _dataStorage.GetHunterGames(r.ID);
+            m.Hunter = _dataStorage.GetHunters().FirstOrDefault(a=>a.ID==r.ID);
+            m.Games = _dataStorage.GetChickens()
+                .Where(a => a.Maker1ID == r.ID || a.Maker2ID == r.ID || a.Recipient1ID == r.ID || a.Recipient2ID == r.ID)
+                .OrderByDescending(a=>a.ChickenDate)
+                .ToArray();
         }
 
         [HttpPost]
@@ -55,6 +60,7 @@ namespace ChickenHunt.Website.Controllers.Hunter.Actions.Index
     {
         public ModelPost Post { get; set; }
         public RecentChickenRecord[] Games { get; set; }
+        public ChickenCandidate Hunter { get; set; }
 
         public Model()
         {

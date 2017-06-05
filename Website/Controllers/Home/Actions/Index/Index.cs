@@ -1,6 +1,11 @@
-﻿using System.Web.Mvc;
+﻿using System;
+using System.Globalization;
+using System.Web.Mvc;
+using System.Web.Routing;
 using ChickenHunt.Website.Controllers.Home.Actions.Index;
 using ChickenHunt.Website.DataLayer;
+using Zavand.Web.Mvc.Manana.Framework;
+using Route = ChickenHunt.Website.Controllers.Home.Actions.Index.Route;
 
 namespace ChickenHunt.Website.Controllers.Home
 {
@@ -15,8 +20,7 @@ namespace ChickenHunt.Website.Controllers.Home
 
         void PrepareModel(Model m, Route r)
         {
-            m.Report = _dataStorage.GetReport();
-            m.Recent = _dataStorage.GetRecentChickens();
+            m.Chickens = _dataStorage.GetChickens();
         }
     }
 }
@@ -38,20 +42,82 @@ namespace ChickenHunt.Website.Controllers.Home.Actions.Index
         }
 
         public int? RecentChickens { get; set; }
+        public SortType? SortBy { get; set; }
+        public bool? SortAsc { get; set; }
+        public string SortPeriod { get; set; }
+
+        public override void MakeTheSameAs(IBaseRoute r)
+        {
+            base.MakeTheSameAs(r);
+
+            var d = r as Route;
+            if (d != null)
+            {
+                RecentChickens = d.RecentChickens;
+                SortBy = d.SortBy;
+                SortAsc = d.SortAsc;
+                SortPeriod = d.SortPeriod;
+                Months = d.Months;
+            }
+        }
+        public int? Months { get; set; }
+
+        //        public override object GetDefaults()
+        //        {
+        //            var d = new RouteValueDictionary(base.GetDefaults());
+        //            d.Add(nameof(SortBy), SortType.K);
+        ////            d.Add(nameof(SortAsc), false);
+        ////            d.Add(nameof(PageSize), BaseWebsiteRoute.DefaultPageSize);
+        ////            d.Add(nameof(OrderBy), BusinessOrderBy.CreateDate.ToString());
+        ////            d.Add(nameof(Asc), AscDescType.Desc);
+        //            return d;
+        //        }
     }
 
     public class Model : HomeModel<Route, HomeController>
     {
-        public ChickenHuntReport[] Report { get; set; }
-        public RecentChickenRecord[] Recent { get; set; }
+        public SortType SortBy { get; set; }
+        public bool SortAsc { get; set; }
+        public DateTime SortPeriod { get; set; }
+        public DateTime SortPeriodFrom { get; set; }
+        public DateTime SortPeriodTo { get; set; }
+        public bool SortPeriodAnnual { get; set; }
 
         public override void SetupModel(HomeController controller, Route route)
         {
             base.SetupModel(controller, route);
 
-            RecentChickens = route.RecentChickens ?? 10;
+            RecentChickens = Math.Min(route.RecentChickens ?? 10, 1000);
+            SortBy = route.SortBy ?? SortType.K;
+            SortAsc = route.SortAsc ?? true;
+            SortPeriod = DateTime.Today.AddDays(-DateTime.Today.Day + 1);
+            SortPeriodFrom = DateTime.Today.AddDays(-DateTime.Today.Day + 1);
+            SortPeriodTo = DateTime.Today.AddDays(-DateTime.Today.Day + 1).AddMonths(1);
+            SortPeriodAnnual = false;
+            Months = Math.Min(route.Months ?? 4, 12);
+
+            if (!String.IsNullOrEmpty(route.SortPeriod))
+            {
+                DateTime d;
+                if (DateTime.TryParseExact(route.SortPeriod, new[] { "yyyy-MM", "yyyyMM", "yyyy"  }, System.Threading.Thread.CurrentThread.CurrentCulture, DateTimeStyles.None, out d))
+                {
+                    SortPeriod = d;
+                    SortPeriodFrom = d;
+                    SortPeriodTo = route.SortPeriod.Length == 4 ? d.AddYears(1) : d.AddMonths(1);
+                    SortPeriodAnnual = route.SortPeriod.Length == 4;
+                }
+            }
         }
 
         public int RecentChickens { get; set; }
+        public int Months { get; set; }
+        public RecentChickenRecord[] Chickens { get; set; }
+    }
+
+    public enum SortType
+    {
+        K,
+        R,
+        M
     }
 }

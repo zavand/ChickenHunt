@@ -1,4 +1,5 @@
-﻿@using ChickenHunt.Website.DataLayer
+﻿@using ChickenHunt.Website.Controllers.Home.Actions.Index
+@using ChickenHunt.Website.DataLayer
 @model ChickenHunt.Website.Controllers.Home.Actions.Index.Model
 @{
     ViewBag.Title = "Home";
@@ -19,121 +20,254 @@
         <img src="~/Content/Images/LogoIcon.png"/> Report chicken</a>
 </div>
 <br/>
+
+@* Build report *@
+
+@{
+    var periods = Enumerable.Range(0,Model.Months).Select(n=>new
+    {
+        From = DateTime.Today.AddDays(-DateTime.Today.Day+1).AddMonths(-n),
+        To = DateTime.Today.AddDays(-DateTime.Today.Day+1).AddMonths(-n+1),
+    })
+    .ToList();
+
+    // Insert current year
+    periods.Insert(0,new
+    {
+        From = DateTime.Today.AddDays(-DateTime.Today.Day + 1).AddMonths(-DateTime.Today.Month+1),
+        To = DateTime.Today.AddDays(-DateTime.Today.Day + 1).AddMonths(-DateTime.Today.Month + 1).AddYears(1)
+    });
+
+    // Insert previous year
+    var prevYear = new
+    {
+        From = DateTime.Today.AddDays(-DateTime.Today.Day + 1).AddMonths(-DateTime.Today.Month + 1).AddYears(-1),
+        To = DateTime.Today.AddDays(-DateTime.Today.Day + 1).AddMonths(-DateTime.Today.Month + 1)
+    };
+    bool inserted = false;
+    for (int i = 0; i < periods.Count; i++)
+    {
+        if (prevYear.To == periods[i].To)
+        {
+            periods.Insert(i,prevYear);
+            inserted = true;
+            break;
+        }
+    }
+    if (!inserted)
+    {
+        periods.Add(prevYear);
+    }
+
+
+    var rr = Model.Chickens
+.Where(m=>m.DeletedByHunterID==null)
+.Select(m => new {HunterID = m.Maker1ID, HunterName = m.Maker1Name, m.ChickenDate, M = m.ChickenCount, C = 0, K = 0})
+.Union(Model.Chickens.Select(m => new {HunterID = m.Maker2ID, HunterName = m.Maker2Name, m.ChickenDate, M = m.ChickenCount, C = 0, K = 0}))
+.Union(Model.Chickens.Select(m => new {HunterID = m.Recipient1ID, HunterName = m.Recipient1Name, m.ChickenDate, M = 0, C = m.ChickenCount, K = 0}))
+.Union(Model.Chickens.Select(m => new {HunterID = m.Recipient2ID, HunterName = m.Recipient2Name, m.ChickenDate, M = 0, C = m.ChickenCount, K = 0}))
+.GroupBy(m => new {m.HunterID, m.HunterName})
+.Select(m => new
+{
+    m.Key.HunterID,
+    m.Key.HunterName,
+    Periods = periods.Select(p =>
+    {
+        var maxMade = Model.Chickens.Where(a => a.ChickenDate >= p.From && a.ChickenDate < p.To && (a.Maker1ID == m.Key.HunterID || a.Maker2ID == m.Key.HunterID))
+            .GroupBy(a => new
+            {
+                HunterID = a.Maker1ID == m.Key.HunterID ? a.Maker2ID : a.Maker1ID,
+                HunterName = a.Maker1ID == m.Key.HunterID ? a.Maker2Name : a.Maker1Name,
+            })
+            .Select(a => new
+            {
+                a.Key.HunterID,
+                a.Key.HunterName,
+                Count = a.Sum(b => b.ChickenCount)
+            })
+            .OrderByDescending(a => a.Count)
+            .ToArray()
+            ;
+
+        var maxReceived = Model.Chickens.Where(a => a.ChickenDate >= p.From && a.ChickenDate < p.To && (a.Recipient1ID == m.Key.HunterID || a.Recipient2ID == m.Key.HunterID))
+            .GroupBy(a => new
+            {
+                HunterID = a.Recipient1ID == m.Key.HunterID ? a.Recipient2ID : a.Recipient1ID,
+                HunterName = a.Recipient1ID == m.Key.HunterID ? a.Recipient2Name : a.Recipient1Name,
+            })
+            .Select(a => new
+            {
+                a.Key.HunterID,
+                a.Key.HunterName,
+                Count = a.Sum(b => b.ChickenCount)
+            })
+            .OrderByDescending(a => a.Count)
+            .ToArray()
+            ;
+
+        return new
+        {
+            p.From,
+            p.To,
+            C = m.Where(a => a.ChickenDate >= p.From && a.ChickenDate < p.To).Sum(a => a.C),
+            M = m.Where(a => a.ChickenDate >= p.From && a.ChickenDate < p.To).Sum(a => a.M),
+            Best = maxMade.Where(a => a.Count == (maxMade.FirstOrDefault()?.Count ?? 0)).ToArray(),
+            Worst = maxReceived.Where(a => a.Count == (maxReceived.FirstOrDefault()?.Count ?? 0)).ToArray()
+        };
+    }).ToArray()
+})
+.ToArray()
+;
+
+    if (Model.SortAsc)
+    {
+        rr = rr.OrderBy(m =>
+        {
+            var period = m.Periods.FirstOrDefault(p => p.From == Model.SortPeriodFrom && p.To==Model.SortPeriodTo);
+            if (period == null || period.C == 0 && period.M == 0)
+            {
+                return int.MaxValue;
+            }
+            switch (Model.SortBy)
+            {
+                case SortType.R:
+                    return period.C;
+                case SortType.M:
+                    return period.M;
+                case SortType.K:
+                    return period.M-period.C;
+            }
+            return 0;
+        })
+        .ThenBy(m => m.HunterName)
+        .ToArray();
+    }
+    else
+    {
+        rr = rr.OrderByDescending(m =>
+        {
+            var period = m.Periods.FirstOrDefault(p => p.From == Model.SortPeriodFrom && p.To == Model.SortPeriodTo);
+            if (period == null || period.C == 0 && period.M == 0)
+            {
+                return int.MinValue;
+            }
+            switch (Model.SortBy)
+            {
+                case SortType.R:
+                    return period.C;
+                case SortType.M:
+                    return period.M;
+                case SortType.K:
+                    return period.M - period.C;
+            }
+            return 0;
+        })
+        .ThenBy(m=>m.HunterName)
+        .ToArray();
+    }
+}
+
+<div class="text-center">
+    <span class = "btn btn-primary">Months:</span>
+    @foreach (var months in Enumerable.Range(1, 12))
+    {
+        @Html.ActionLinkClone(months.ToString(), Model.GetRoute(), m => { m.Months = months; }, new {@class = "btn " + (Model.Months==months? "btn-info": "btn-default") })
+    }
+</div>
+<br />
+<div class="text-center">
+    <span><span class="btn btn-default btn-xs">R</span> Received</span>
+    <span><span class="btn btn-default btn-xs">M</span> Made</span>
+    <span><span class="btn btn-default btn-xs">K</span> = M - R</span>
+</div>
+<br />
 <table class="table table-hover table-responsive">
     <tr>
         <th>Hunter</th>
-
-        @{
-            var maxMonths = 6;
-            {
-                var d = DateTime.Today.AddDays(-DateTime.Today.Day + 1);
-
-                for (int i = 0; i < maxMonths; i++)
-                {
-                    var d1 = d.AddMonths(-i);
-
-                    var insertYear = false;
-
-                    if (i == 0 && d.AddMonths(-i).Month>1 || d.AddMonths(-i).Year != d.AddMonths(-i + 1).Year)
-                    {
-                        insertYear = true;
-                        //maxMonths--;
-                        var a = 0;
+        @for (var i = 0; i < periods.Count; i++)
+        {
+            var p = periods[i];
+            <th class="text-center" style="background-color: @((p.To-p.From).TotalDays>31?"gold":"inherited");">
+                @((p.To-p.From).TotalDays>31 ? p.From.ToString("yyyy") : p.From.ToString("MMMM"))
+                <div>
+                    @{
+                        var sortPeriodFormat = (p.To - p.From).TotalDays > 31 ? "yyyy" : "yyyyMM";
+                        var sortIndicatorK = "";
+                        var sortIndicatorC = "";
+                        var sortIndicatorM = "";
+                        if (Model.SortPeriodFrom == p.From && Model.SortPeriodTo==p.To)
+                        {
+                            var ind = Model.SortAsc ? " <i class=\"fa fa-sort-asc\"></i>" : "  <i class=\"fa fa-sort-desc\"></i>";
+                            switch (Model.SortBy)
+                            {
+                                case SortType.K:
+                                    sortIndicatorK = ind;
+                                    break;
+                                case SortType.R:
+                                    sortIndicatorC = ind;
+                                    break;
+                                case SortType.M:
+                                    sortIndicatorM = ind;
+                                    break;
+                            }
+                        }
                     }
-                    if (insertYear)
-                    {
-                        <th class="text-center" style="background-color: gold;">
-                            @d.AddMonths(-i).Year
-                        </th>
-                    }
-                    <th class="text-center @(i > 0 ? "hidden-sm hidden-xs" : "")">
-                        @d1.ToString("MMMM")<span class="visible-print-inline">@d1.ToString(", yyyy")</span></th>
-                }
-            }
+
+                    @Html.ActionLinkClone("K" + sortIndicatorK, Model.GetRoute(), r => { r.SortAsc = p.From == Model.SortPeriod && Model.SortBy == SortType.K && !Model.SortAsc; r.SortBy = SortType.K; r.SortPeriod = p.From.ToString(sortPeriodFormat); }, new { @class = "btn btn-xs " + (String.IsNullOrEmpty(sortIndicatorK) ? "btn-default" : "btn-primary") })
+                    @Html.ActionLinkClone("R" + sortIndicatorC, Model.GetRoute(), r => { r.SortAsc = p.From == Model.SortPeriod && Model.SortBy == SortType.R && !Model.SortAsc; r.SortBy = SortType.R; r.SortPeriod = p.From.ToString(sortPeriodFormat); }, new { @class = "btn btn-xs " + (String.IsNullOrEmpty(sortIndicatorC) ? "btn-default" : "btn-primary") })
+                    @Html.ActionLinkClone("M" + sortIndicatorM, Model.GetRoute(), r => { r.SortAsc = p.From == Model.SortPeriod && Model.SortBy == SortType.M && !Model.SortAsc; r.SortBy = SortType.M; r.SortPeriod = p.From.ToString(sortPeriodFormat); }, new { @class = "btn btn-xs " + (String.IsNullOrEmpty(sortIndicatorM) ? "btn-default" : "btn-primary") })
+                </div>
+            </th>
         }
     </tr>
-
-    @{
-        var hunters = Model.Report.Select(m => new { m.HunterID, m.HunterName }).Distinct();
-    var currentMonth = DateTime.Today.AddDays(-DateTime.Today.Day + 1);
-
-    foreach (var hunter in hunters.OrderByDescending(m =>
+    
+    @foreach (var r in rr)
     {
-        var b = Model.Report.FirstOrDefault(a => a.HunterID == m.HunterID && a.Date == currentMonth);
-        if (b == null)
-            return 0;
-        return b.Chickens;
-    }))
-    {
-            <tr>
-                <td>@Html.ActionLink(hunter.HunterName,Model.GetRoute(), ChickenHunt.Website.Controllers.Hunter.Actions.Index.Route.Create(hunter.HunterID))</td>
-                @{
-                    for (int i = 0; i < maxMonths; i++)
-                    {
-                        var month = currentMonth.AddMonths(-i);
-                        var insertYear = false;
-
-                        if (i== 0 && currentMonth.AddMonths(-i).Month > 1 || currentMonth.AddMonths(-i).Year != currentMonth.AddMonths(-i + 1).Year)
-                        {
-                            insertYear = true;
-                            //maxMonths--;
-                            var a = 0;
-                        }
-
-                        if (insertYear)
-                        {
-                            var year = currentMonth.AddMonths(-i).Year;
-                            var repYear = Model.Report.Where(m => m.HunterID == hunter.HunterID && m.Date.Year == year).Sum(m=>m.Chickens);
-                            var repYearMade = Model.Recent.Where(m=>m.DeletedByHunterID==null).Count(m => m.Date.Year == month.Year && (m.Maker1ID == hunter.HunterID || m.Maker2ID == hunter.HunterID));
-                            <td style="background-color: khaki;" class="text-nowrap text-center">
-                                @repYear.ToString("#,0") / @repYearMade.ToString("#,0")
-                            </td>
-                        }
-
-                        var rep = Model.Report.FirstOrDefault(m => m.HunterID == hunter.HunterID && m.Date == month);
-                        if (rep == null)
-                        {
-                            rep = new ChickenHuntReport
-                            {
-                                Chickens = 0,
-                                Date = month,
-                                Today = 0
-                            };
-                        }
-                        var repMadeChickens = Model.Recent.Where(m => m.DeletedByHunterID == null).Count(m => m.Date.Year == month.Year && m.Date.Month == month.Month && (m.Maker1ID == hunter.HunterID || m.Maker2ID == hunter.HunterID));
-
-
-                            <td class="text-center @(i > 0 ? "hidden-sm hidden-xs" : "")" @*style="@(rep.Chickens == 0 ? "color:#ddd;" : "")"*@>
-                                <div class="text-center" style="display: inline-block;">
-                                    <div>
-                                        <span style="color: red;">@rep.Chickens</span> /
-                                        <span style="color: green;">@repMadeChickens</span>
-                                    </div>
-                                    @if (rep.Chickens >= 5)
-                                    {
-                                        <span>
-                                            @for (int j = 0; j < rep.Chickens / 5; j++)
-                                            {
-                                                <img src="~/Content/Images/rating.png" title="@((j + 1) * 5)+"/>
-                                            }
-                                        </span>
-                                    }
-                                    @if (month == currentMonth && rep.Today > 0)
-                                    {
-                                        <div>
-                                            <span class="label label-success"><i class="fa fa-line-chart" aria-hidden="true"></i> +@rep.Today</span>
-                                        </div>
-                                    }
-                                </div>
-                        </td>
-                    }
+        <tr>
+            <td>@Html.ActionLink(r.HunterName, Model.GetRoute(), ChickenHunt.Website.Controllers.Hunter.Actions.Index.Route.Create(r.HunterID))</td>
+            @for (var i = 0; i < r.Periods.Length; i++)
+            {
+                var p = r.Periods[i];
+                int receivedToday = 0;
+                int madeToday = 0;
+                if (i == 1)
+                {
+                    // Current month
+                    receivedToday = Model.Chickens.Count(m => m.ChickenDate.Date == DateTime.Today && (m.Recipient1ID==r.HunterID || m.Recipient2ID==r.HunterID));
+                    madeToday = Model.Chickens.Count(m => m.ChickenDate.Date == DateTime.Today && (m.Maker1ID==r.HunterID || m.Maker2ID==r.HunterID));
                 }
-            </tr>
-        }
+                <td class="text-center" style="background-color: @((p.To - p.From).TotalDays > 31 ? "gold" : "inherited");">
+                    <div style="font-size: 1.25em; white-space: nowrap;">
+                        <span>@(p.M - p.C)</span> /
+                        <span style="color: red;">@p.C</span> /
+                        <span style="color: green;">@p.M</span>
+                    </div>
+                    @if (receivedToday + madeToday > 0)
+                    {
+                        <div>
+                            @if (receivedToday > 0)
+                            {
+                                <span class="label label-danger"><i class="fa fa-line-chart" aria-hidden="true"></i> +@receivedToday</span>
+                            }
+                            @if (madeToday > 0)
+                            {
+                                <span class="label label-success"><i class="fa fa-line-chart" aria-hidden="true"></i> +@madeToday</span>
+                            }
+                        </div>
+                    }
+                    <div style="font-size: 0.75em;">
+                        <span style="color: red;" title="The worst partner(s)">@String.Join(", ", p.Worst.Select(m => m.HunterName))</span>
+                        <span style="color: green;" title="The best partner(s)">@String.Join(", ", p.Best.Select(m => m.HunterName))</span>
+                    </div>
+                </td>
+            }
+        </tr>
     }
 </table>
+
+
 <h2 class="text-center"><a name="RecentChickens"></a>Recent chickens</h2>
-@if (Model.Recent.Length == 0)
+@if (Model.Chickens.Length == 0)
 {
     <div class="alert alert-info">No records found</div>
 }
@@ -155,7 +289,7 @@ else
             </div>
         </div>
     </text>
-    foreach (var c in Model.Recent.Take(Model.RecentChickens))
+    foreach (var c in Model.Chickens.OrderByDescending(m=>m.CreateDate).Take(Model.RecentChickens))
     {
 
 
@@ -183,7 +317,7 @@ else
             <div class="col-sm-4 col-xs-12 col-md-4"><span class="pull-right text-right"><small>
                 Reported by <strong>@c.ReporterName</strong> |
 
-                @if (c.Date.Date == DateTime.Now.Date)
+                @if (c.CreateDate.Date == DateTime.Now.Date)
                 {
                     <text>
                         <span class="label label-success">Today</span>
@@ -191,12 +325,12 @@ else
                 }
                 else
                 {
-                    @c.Date.ToLongDateString()
+                    @c.CreateDate.ToLongDateString()
                 }
                                                                                              <br />
                 @if (c.DeletedByHunterID == null)
                 {
-                    if (User.Identity.IsAuthenticated && (DateTime.Now - c.Date) < TimeSpan.FromDays(2))
+                    if (User.Identity.IsAuthenticated && (DateTime.Now - c.CreateDate) < TimeSpan.FromDays(2))
                     {
                         <text>
                             @Html.ActionLink("Delete", Model.GetRoute(), ChickenHunt.Website.Controllers.Home.Actions.DeleteChicken.Route.Create(c.ID), new {@class = "btn btn-xs btn-danger"})

@@ -17,7 +17,7 @@ else
         <div class="alert alert-danger">Chicken already deleted
             @Html.ActionLink("Go to Home", Model.GetRoute(), ChickenHunt.Website.Controllers.Home.Actions.Index.Route.Create(), new { @class = "btn btn-default" })</div>
     }
-    else if ((DateTime.Now - Model.Chicken.Date) > TimeSpan.FromDays(2))
+    else if ((DateTime.Now - Model.Chicken.CreateDate) > TimeSpan.FromDays(2))
     {
         <div class="alert alert-warning">This chicken was created more than 2 days ago. Only recent chickens can be deleted.
         @Html.ActionLink("Go to Home", Model.GetRoute(), ChickenHunt.Website.Controllers.Home.Actions.Index.Route.Create(), new { @class = "btn btn-default" })</div>
@@ -59,7 +59,7 @@ else
                             <small>
                                 Reported by <strong>@Model.Chicken.ReporterName</strong> |
 
-                                @if (Model.Chicken.Date.Date == DateTime.Now.Date)
+                                @if (Model.Chicken.CreateDate.Date == DateTime.Now.Date)
                                 {
                                     <text>
                                         <span class="label label-success">Today</span>
@@ -67,7 +67,7 @@ else
                                 }
                                 else
                                 {
-                                    @Model.Chicken.Date.ToLongDateString()
+                                    @Model.Chicken.CreateDate.ToLongDateString()
                                 }
                             </small>
                         </span>

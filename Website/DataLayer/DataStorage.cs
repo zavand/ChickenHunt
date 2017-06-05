@@ -41,12 +41,14 @@ CREATE TABLE IF NOT EXISTS `hunter` (
 CREATE TABLE IF NOT EXISTS `chicken` (
   `ID` int NOT NULL AUTO_INCREMENT,
   `CreateDate` datetime NOT NULL,
+  `ChickenDate` datetime NOT NULL,
   `ChickenRecipientID1` int NOT NULL,
   `ChickenRecipientID2` int NOT NULL,
   `ChickenMakerID1` int NULL,
   `ChickenMakerID2` int NULL,
   `ReportedByHunterID` int NOT NULL,
   `DeletedByHunterID` int NULL,
+  `ChickenCount` int NOT NULL DEFAULT 1,
   PRIMARY KEY (`ID`),
   KEY `IDX_ChickenRecipientID1` (`ChickenRecipientID1`),
   KEY `IDX_ChickenRecipientID2` (`ChickenRecipientID2`),
@@ -122,6 +124,28 @@ create index `IDX_CreateDate` on `chicken`(`CreateDate`);
                 }
 
                 //ALTER TABLE `chicken_hunt`.`chicken`  ENGINE = InnoDB;
+
+                using (var r = new MySqlCommand("show columns in `chicken` where Field='ChickenCount'", c).ExecuteReader())
+                {
+                    patchRequired = !r.HasRows;
+                }
+                if (patchRequired)
+                {
+                    c.ExecuteNonQuery(@"ALTER TABLE `chicken` ADD COLUMN `ChickenCount` int NOT NULL DEFAULT 1");
+                }
+
+                using (var r = new MySqlCommand("show columns in `chicken` where Field='ChickenDate'", c).ExecuteReader())
+                {
+                    patchRequired = !r.HasRows;
+                }
+                if (patchRequired)
+                {
+                    c.ExecuteNonQuery(@"
+ALTER TABLE `chicken` ADD COLUMN `ChickenDate` datetime NULL;
+UPDATE `chicken` SET ChickenDate=CreateDate;
+ALTER TABLE `chicken` CHANGE COLUMN `ChickenDate` `ChickenDate` datetime NOT NULL AFTER `CreateDate`;
+");
+                }
             }
         }
 
@@ -148,19 +172,21 @@ create index `IDX_CreateDate` on `chicken`(`CreateDate`);
             throw new NotImplementedException();
         }
 
-        public int InsertChickenRecord(DateTime createDate, int chickenCandidateID1, int chickenCandidateID2, int? chickenCandidateGiverID1, int? chickenCandidateGiverID2, int reportedByHunterID)
+        public int InsertChickenRecord(DateTime createDate, DateTime chickenDate, int chickenCandidateID1, int chickenCandidateID2, int? chickenCandidateGiverID1, int? chickenCandidateGiverID2, int reportedByHunterID, int chickenCount = 1)
         {
             using (var c = new MySqlConnection(ConnectionString))
             {
                 c.Open();
 
-                var r = (int) c.ExecuteScalar<ulong>($"insert into chicken (CreateDate,ChickenRecipientID1,ChickenRecipientID2,ChickenMakerID1,ChickenMakerID2,ReportedByHunterID) values (@CreateDate,@ChickenRecipientID1,@ChickenRecipientID2,@ChickenMakerID1,@ChickenMakerID2,@ReportedByHunterID); select LAST_INSERT_ID();",
+                var r = (int) c.ExecuteScalar<ulong>($"insert into chicken (CreateDate,ChickenDate,ChickenRecipientID1,ChickenRecipientID2,ChickenMakerID1,ChickenMakerID2,ReportedByHunterID,ChickenCount) values (@CreateDate,@ChickenDate,@ChickenRecipientID1,@ChickenRecipientID2,@ChickenMakerID1,@ChickenMakerID2,@ReportedByHunterID,@ChickenCount); select LAST_INSERT_ID();",
                     "@CreateDate", createDate,
+                    "@ChickenDate", chickenDate,
                     "@ChickenRecipientID1", chickenCandidateID1,
                     "@ChickenRecipientID2", chickenCandidateID2,
                     "@ChickenMakerID1", chickenCandidateGiverID1,
                     "@ChickenMakerID2", chickenCandidateGiverID2,
-                    "@ReportedByHunterID", reportedByHunterID
+                    "@ReportedByHunterID", reportedByHunterID,
+                    "@ChickenCount", chickenCount
                 );
                 return r;
             }
@@ -436,7 +462,7 @@ order by c.Date desc, c.Chickens desc, h.Name
                             ReporterName = r.GetString("ReporterName"),
                             DeletedByHunterID = r["DeletedByHunterID"] == DBNull.Value ? (int?) null : r.GetInt32("DeletedByHunterID"),
                             DeletedByHunterName = r["DeletedByHunterName"] == DBNull.Value ? null : r.GetString("DeletedByHunterName"),
-                            Date = r.GetDateTime("CreateDate"),
+                            CreateDate = r.GetDateTime("CreateDate"),
                         });
                     },
                     $@"
@@ -485,7 +511,7 @@ order by c.CreateDate desc
                             Maker2Name = r.GetString("Maker2Name"),
                             ReporterID = r.GetInt32("ReporterID"),
                             ReporterName = r.GetString("ReporterName"),
-                            Date = r.GetDateTime("CreateDate"),
+                            CreateDate = r.GetDateTime("CreateDate"),
                         });
                     },
                     $@"
@@ -534,7 +560,7 @@ order by c.CreateDate desc ;
                             ReporterName = r.GetString("ReporterName"),
                             DeletedByHunterID = r["DeletedByHunterID"] == DBNull.Value ? (int?) null : r.GetInt32("DeletedByHunterID"),
                             DeletedByHunterName = r["DeletedByHunterName"] == DBNull.Value ? null : r.GetString("DeletedByHunterName"),
-                            Date = r.GetDateTime("CreateDate"),
+                            CreateDate = r.GetDateTime("CreateDate"),
                         };
                     },
                     $@"
@@ -569,9 +595,61 @@ where c.ID = {chickenID}
                 var chicken = GetChicken(chickenID);
 
                 // Update cube
-                UpdateCude(chicken.Recipient1ID, chicken.Date, -1);
-                UpdateCude(chicken.Recipient2ID, chicken.Date, -1);
+                UpdateCude(chicken.Recipient1ID, chicken.CreateDate, -1);
+                UpdateCude(chicken.Recipient2ID, chicken.CreateDate, -1);
             }
+        }
+
+        public RecentChickenRecord[] GetChickens()
+        {
+            var records = new List<RecentChickenRecord>();
+            using (var c = new MySqlConnection(ConnectionString))
+            {
+                c.Open();
+
+                c.ExecuteReader(
+                    r =>
+                    {
+                        records.Add(new RecentChickenRecord
+                        {
+                            ID = r.GetInt32("ID"),
+                            Recipient1ID = r.GetInt32("Recipient1ID"),
+                            Recipient1Name = r.GetString("Recipient1Name"),
+                            Recipient2ID = r.GetInt32("Recipient2ID"),
+                            Recipient2Name = r.GetString("Recipient2Name"),
+                            Maker1ID = r.GetInt32("Maker1ID"),
+                            Maker1Name = r.GetString("Maker1Name"),
+                            Maker2ID = r.GetInt32("Maker2ID"),
+                            Maker2Name = r.GetString("Maker2Name"),
+                            ReporterID = r.GetInt32("ReporterID"),
+                            ReporterName = r.GetString("ReporterName"),
+                            DeletedByHunterID = r["DeletedByHunterID"] == DBNull.Value ? (int?)null : r.GetInt32("DeletedByHunterID"),
+                            DeletedByHunterName = r["DeletedByHunterName"] == DBNull.Value ? null : r.GetString("DeletedByHunterName"),
+                            CreateDate = r.GetDateTime("CreateDate"),
+                            ChickenDate = r.GetDateTime("ChickenDate"),
+                            ChickenCount = r.GetInt32("ChickenCount"),
+                        });
+                    },
+                    $@"
+select c.*,
+hr1.ID as 'Recipient1ID',hr1.Name as 'Recipient1Name',
+hr2.ID as 'Recipient2ID',hr2.Name as 'Recipient2Name',
+hm1.ID as 'Maker1ID',hm1.Name as 'Maker1Name',
+hm2.ID as 'Maker2ID',hm2.Name as 'Maker2Name',
+hr.ID as 'ReporterID',hr.Name as 'ReporterName',
+hrdel.Name as 'DeletedByHunterName'
+from chicken c
+join hunter hr1 on hr1.ID = c.ChickenRecipientID1
+join hunter hr2 on hr2.ID = c.ChickenRecipientID2
+join hunter hm1 on hm1.ID = c.ChickenMakerID1
+join hunter hm2 on hm2.ID = c.ChickenMakerID2
+join hunter hr on hr.ID = c.ReportedByHunterID
+left join hunter hrdel on hrdel.ID = c.DeletedByHunterID
+;
+"
+                );
+            }
+            return records.ToArray();
         }
     }
         internal class InvalidCredentialsException : Exception

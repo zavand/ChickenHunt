@@ -7,7 +7,7 @@ namespace ChickenHunt.Website.DataLayer
     {
         int InsertChickenCandidate(string name, string email, DateTime createDate, string password);
         void UpdateChickenCandidate(int chickenCandidateID, string name, string email, DateTime createDate);
-        int InsertChickenRecord(DateTime createDate, int chickenCandidateID1, int chickenCandidateID2, int? chickenCandidateGiverID1, int? chickenCandidateGiverID2, int reportedByHunterID);
+        int InsertChickenRecord(DateTime createDate, DateTime chickenDate, int chickenCandidateID1, int chickenCandidateID2, int? chickenCandidateGiverID1, int? chickenCandidateGiverID2, int reportedByHunterID, int chickenCount = 1);
         void UpdateChickenRecord(int chickenRecordID, DateTime createDate, int chickenCandidateID1, int chickenCandidateID2, int? chickenCandidateGiverID1, int? chickenCandidateGiverID2);
         string GenerateToken(string email, string password);
         string GetToken(string email, string password);
@@ -33,6 +33,8 @@ namespace ChickenHunt.Website.DataLayer
 
         RecentChickenRecord GetChicken(int chickenID);
         void DeleteChicken(int chickenID, int hunterID);
+
+        RecentChickenRecord[] GetChickens();
     }
 
     public class ChickenHuntReport
@@ -70,15 +72,18 @@ namespace ChickenHunt.Website.DataLayer
     {
         public int ID { get; set; }
         public DateTime CreateDate { get; set; }
-        public int ChickenCandidateID1 { get; set; }
-        public int ChickenCandidateID2 { get; set; }
-        public int? ChickenCandidateGiverID1 { get; set; }
-        public int? ChickenCandidateGiverID2 { get; set; }
+        public int ReceiverHunterID1 { get; set; }
+        public int ReceiverHunterID2 { get; set; }
+        public int GiverHunterID1 { get; set; }
+        public int GiverHunterID2 { get; set; }
+        public int ReportedByHunterID { get; set; }
+        public int ChickenCount { get; set; }
     }
 
     public class RecentChickenRecord
     {
-        public DateTime Date { get; set; }
+        public DateTime CreateDate { get; set; }
+        public DateTime ChickenDate { get; set; }
         public int Recipient1ID { get; set; }
         public string Recipient1Name { get; set; }
         public int Recipient2ID { get; set; }
@@ -92,6 +97,7 @@ namespace ChickenHunt.Website.DataLayer
         public int ID { get; set; }
         public int? DeletedByHunterID { get; set; }
         public string DeletedByHunterName { get; set; }
+        public int ChickenCount { get; set; }
     }
 
     internal class ChickenRecordHistory
