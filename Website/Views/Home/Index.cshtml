@@ -134,8 +134,10 @@
                     return period.C;
                 case SortType.M:
                     return period.M;
-                case SortType.K:
+                case SortType.B:
                     return period.M-period.C;
+                case SortType.K:
+                    return (period.M + period.C)==0?0:(double)period.M/(period.M + period.C);
             }
             return 0;
         })
@@ -157,8 +159,10 @@
                     return period.C;
                 case SortType.M:
                     return period.M;
-                case SortType.K:
+                case SortType.B:
                     return period.M - period.C;
+                case SortType.K:
+                    return (period.M + period.C) == 0 ? 0 : (double)period.M / (period.M + period.C);
             }
             return 0;
         })
@@ -178,7 +182,8 @@
 <div class="text-center">
     <span><span class="btn btn-default btn-xs">R</span> Received</span>
     <span><span class="btn btn-default btn-xs">M</span> Made</span>
-    <span><span class="btn btn-default btn-xs">K</span> = M - R</span>
+    <span><span class="btn btn-default btn-xs">B</span> = M - R</span>
+    <span><span class="btn btn-default btn-xs">K</span> = M / (M + R)</span>
 </div>
 <br />
 <table class="table table-hover table-responsive">
@@ -192,6 +197,7 @@
                 <div>
                     @{
                         var sortPeriodFormat = (p.To - p.From).TotalDays > 31 ? "yyyy" : "yyyyMM";
+                        var sortIndicatorB = "";
                         var sortIndicatorK = "";
                         var sortIndicatorC = "";
                         var sortIndicatorM = "";
@@ -200,6 +206,9 @@
                             var ind = Model.SortAsc ? " <i class=\"fa fa-sort-asc\"></i>" : "  <i class=\"fa fa-sort-desc\"></i>";
                             switch (Model.SortBy)
                             {
+                                case SortType.B:
+                                    sortIndicatorB = ind;
+                                    break;
                                 case SortType.K:
                                     sortIndicatorK = ind;
                                     break;
@@ -214,6 +223,7 @@
                     }
 
                     @Html.ActionLinkClone("K" + sortIndicatorK, Model.GetRoute(), r => { r.SortAsc = p.From == Model.SortPeriod && Model.SortBy == SortType.K && !Model.SortAsc; r.SortBy = SortType.K; r.SortPeriod = p.From.ToString(sortPeriodFormat); }, new { @class = "btn btn-xs " + (String.IsNullOrEmpty(sortIndicatorK) ? "btn-default" : "btn-primary") })
+                    @Html.ActionLinkClone("B" + sortIndicatorB, Model.GetRoute(), r => { r.SortAsc = p.From == Model.SortPeriod && Model.SortBy == SortType.B && !Model.SortAsc; r.SortBy = SortType.B; r.SortPeriod = p.From.ToString(sortPeriodFormat); }, new { @class = "btn btn-xs " + (String.IsNullOrEmpty(sortIndicatorB) ? "btn-default" : "btn-primary") })
                     @Html.ActionLinkClone("R" + sortIndicatorC, Model.GetRoute(), r => { r.SortAsc = p.From == Model.SortPeriod && Model.SortBy == SortType.R && !Model.SortAsc; r.SortBy = SortType.R; r.SortPeriod = p.From.ToString(sortPeriodFormat); }, new { @class = "btn btn-xs " + (String.IsNullOrEmpty(sortIndicatorC) ? "btn-default" : "btn-primary") })
                     @Html.ActionLinkClone("M" + sortIndicatorM, Model.GetRoute(), r => { r.SortAsc = p.From == Model.SortPeriod && Model.SortBy == SortType.M && !Model.SortAsc; r.SortBy = SortType.M; r.SortPeriod = p.From.ToString(sortPeriodFormat); }, new { @class = "btn btn-xs " + (String.IsNullOrEmpty(sortIndicatorM) ? "btn-default" : "btn-primary") })
                 </div>
@@ -238,6 +248,7 @@
                 }
                 <td class="text-center" style="background-color: @((p.To - p.From).TotalDays > 31 ? "gold" : "inherited");">
                     <div style="font-size: 1.25em; white-space: nowrap;">
+                        <span>@((p.M+p.C)==0? "0.00" : ((double)p.M / (p.M + p.C)).ToString("#,0.00"))</span> /
                         <span>@(p.M - p.C)</span> /
                         <span style="color: red;">@p.C</span> /
                         <span style="color: green;">@p.M</span>

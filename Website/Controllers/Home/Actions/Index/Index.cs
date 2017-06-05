@@ -89,7 +89,7 @@ namespace ChickenHunt.Website.Controllers.Home.Actions.Index
 
             RecentChickens = Math.Min(route.RecentChickens ?? 10, 1000);
             SortBy = route.SortBy ?? SortType.K;
-            SortAsc = route.SortAsc ?? true;
+            SortAsc = route.SortAsc ?? false;
             SortPeriod = DateTime.Today.AddDays(-DateTime.Today.Day + 1);
             SortPeriodFrom = DateTime.Today.AddDays(-DateTime.Today.Day + 1);
             SortPeriodTo = DateTime.Today.AddDays(-DateTime.Today.Day + 1).AddMonths(1);
@@ -116,6 +116,7 @@ namespace ChickenHunt.Website.Controllers.Home.Actions.Index
 
     public enum SortType
     {
+        B,
         K,
         R,
         M
