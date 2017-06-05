@@ -9,6 +9,12 @@
         background-color: #fff;
         padding: 0px;
     }
+
+    .sorted-value {
+        background-color: yellow;
+        padding: 3px;
+        border: solid 1px #daa520;
+    }
 </style>
 <div class="row text-center">
     <div class="col-md-12 col-sm-12">
@@ -246,12 +252,14 @@
                     receivedToday = Model.Chickens.Count(m => m.ChickenDate.Date == DateTime.Today && (m.Recipient1ID==r.HunterID || m.Recipient2ID==r.HunterID));
                     madeToday = Model.Chickens.Count(m => m.ChickenDate.Date == DateTime.Today && (m.Maker1ID==r.HunterID || m.Maker2ID==r.HunterID));
                 }
+                var sortedPeriod = Model.SortPeriodFrom == p.From && Model.SortPeriodTo == p.To;
+
                 <td class="text-center" style="background-color: @((p.To - p.From).TotalDays > 31 ? "gold" : "inherited");">
                     <div style="font-size: 1.25em; white-space: nowrap;">
-                        <span>@((p.M+p.C)==0? "0.00" : ((double)p.M / (p.M + p.C)).ToString("#,0.00"))</span> /
-                        <span>@(p.M - p.C)</span> /
-                        <span style="color: red;">@p.C</span> /
-                        <span style="color: green;">@p.M</span>
+                        <span class="@(sortedPeriod&&Model.SortBy==SortType.K?"sorted-value":"")">@((p.M+p.C)==0? "0.00" : ((double)p.M / (p.M + p.C)).ToString("#,0.00"))</span> /
+                        <span class="@(sortedPeriod&&Model.SortBy==SortType.B?"sorted-value":"")">@(p.M - p.C)</span> /
+                        <span class="@(sortedPeriod&&Model.SortBy==SortType.R?"sorted-value":"")" style="color: red;">@p.C</span> /
+                        <span class="@(sortedPeriod&&Model.SortBy==SortType.M?"sorted-value":"")" style="color: green;">@p.M</span>
                     </div>
                     @if (receivedToday + madeToday > 0)
                     {
