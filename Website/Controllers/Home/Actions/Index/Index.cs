@@ -88,7 +88,7 @@ namespace ChickenHunt.Website.Controllers.Home.Actions.Index
             base.SetupModel(controller, route);
 
             RecentChickens = Math.Min(route.RecentChickens ?? 10, 1000);
-            SortBy = route.SortBy ?? SortType.K;
+            SortBy = route.SortBy ?? SortType.T;
             SortAsc = route.SortAsc ?? false;
             SortPeriod = DateTime.Today.AddDays(-DateTime.Today.Day + 1);
             SortPeriodFrom = DateTime.Today.AddDays(-DateTime.Today.Day + 1);
@@ -118,6 +118,7 @@ namespace ChickenHunt.Website.Controllers.Home.Actions.Index
     {
         B,
         K,
+        T,
         R,
         M
     }

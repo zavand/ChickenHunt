@@ -144,6 +144,13 @@
                     return period.M-period.C;
                 case SortType.K:
                     return (period.M + period.C)==0?0:(double)period.M/(period.M + period.C);
+                case SortType.T:
+                    {
+                        var b = period.M - period.C;
+                        var k = (period.M + period.C) == 0 ? 0 : (double)period.M / (period.M + period.C);
+                        var t = (b < 0 ? 1.0 - k : k) * b;
+                        return t;
+                    }
             }
             return 0;
         })
@@ -168,7 +175,14 @@
                 case SortType.B:
                     return period.M - period.C;
                 case SortType.K:
-                    return (period.M + period.C) == 0 ? 0 : (double)period.M / (period.M + period.C);
+                    return (period.M + period.C) == 0 ? 0 : (double) period.M / (period.M + period.C);
+                case SortType.T:
+                    {
+                        var b = period.M - period.C;
+                        var k = (period.M + period.C) == 0 ? 0 : (double) period.M / (period.M + period.C);
+                        var t = (b < 0 ? 1.0 - k : k) * b;
+                        return t;
+                    }
             }
             return 0;
         })
@@ -190,6 +204,7 @@
     <span><span class="btn btn-default btn-xs">M</span> Made</span>
     <span><span class="btn btn-default btn-xs">B</span> = M - R</span>
     <span><span class="btn btn-default btn-xs">K</span> = M / (M + R)</span>
+    <span><span class="btn btn-default btn-xs">T</span> = B >= 0: <span style="text-decoration:underline">K * B</span>; B < 0: <span style="text-decoration:underline">(1 - K) * B</span></span>
 </div>
 <br />
 <table class="table table-hover table-responsive">
@@ -205,6 +220,7 @@
                         var sortPeriodFormat = (p.To - p.From).TotalDays > 31 ? "yyyy" : "yyyyMM";
                         var sortIndicatorB = "";
                         var sortIndicatorK = "";
+                        var sortIndicatorT = "";
                         var sortIndicatorC = "";
                         var sortIndicatorM = "";
                         if (Model.SortPeriodFrom == p.From && Model.SortPeriodTo==p.To)
@@ -218,6 +234,9 @@
                                 case SortType.K:
                                     sortIndicatorK = ind;
                                     break;
+                                case SortType.T:
+                                    sortIndicatorT = ind;
+                                    break;
                                 case SortType.R:
                                     sortIndicatorC = ind;
                                     break;
@@ -228,6 +247,7 @@
                         }
                     }
 
+                    @Html.ActionLinkClone("T" + sortIndicatorT, Model.GetRoute(), r => { r.SortAsc = p.From == Model.SortPeriod && Model.SortBy == SortType.T && !Model.SortAsc; r.SortBy = SortType.T; r.SortPeriod = p.From.ToString(sortPeriodFormat); }, new { @class = "btn btn-xs " + (String.IsNullOrEmpty(sortIndicatorT) ? "btn-default" : "btn-primary") })
                     @Html.ActionLinkClone("K" + sortIndicatorK, Model.GetRoute(), r => { r.SortAsc = p.From == Model.SortPeriod && Model.SortBy == SortType.K && !Model.SortAsc; r.SortBy = SortType.K; r.SortPeriod = p.From.ToString(sortPeriodFormat); }, new { @class = "btn btn-xs " + (String.IsNullOrEmpty(sortIndicatorK) ? "btn-default" : "btn-primary") })
                     @Html.ActionLinkClone("B" + sortIndicatorB, Model.GetRoute(), r => { r.SortAsc = p.From == Model.SortPeriod && Model.SortBy == SortType.B && !Model.SortAsc; r.SortBy = SortType.B; r.SortPeriod = p.From.ToString(sortPeriodFormat); }, new { @class = "btn btn-xs " + (String.IsNullOrEmpty(sortIndicatorB) ? "btn-default" : "btn-primary") })
                     @Html.ActionLinkClone("R" + sortIndicatorC, Model.GetRoute(), r => { r.SortAsc = p.From == Model.SortPeriod && Model.SortBy == SortType.R && !Model.SortAsc; r.SortBy = SortType.R; r.SortPeriod = p.From.ToString(sortPeriodFormat); }, new { @class = "btn btn-xs " + (String.IsNullOrEmpty(sortIndicatorC) ? "btn-default" : "btn-primary") })
@@ -255,11 +275,17 @@
                 var sortedPeriod = Model.SortPeriodFrom == p.From && Model.SortPeriodTo == p.To;
 
                 <td class="text-center" style="background-color: @((p.To - p.From).TotalDays > 31 ? "gold" : "inherited");">
-                    <div style="font-size: 1.25em; white-space: nowrap;">
-                        <span class="@(sortedPeriod&&Model.SortBy==SortType.K?"sorted-value":"")">@((p.M+p.C)==0? "0.00" : ((double)p.M / (p.M + p.C)).ToString("#,0.00"))</span> /
-                        <span class="@(sortedPeriod&&Model.SortBy==SortType.B?"sorted-value":"")">@(p.M - p.C)</span> /
-                        <span class="@(sortedPeriod&&Model.SortBy==SortType.R?"sorted-value":"")" style="color: red;">@p.C</span> /
-                        <span class="@(sortedPeriod&&Model.SortBy==SortType.M?"sorted-value":"")" style="color: green;">@p.M</span>
+                    <div style="white-space: nowrap;">
+                        @{
+                            var b = p.M - p.C;
+                            var k = (p.M + p.C) == 0 ? 0 : (double) p.M / (p.M + p.C);
+                            var t = (b < 0 ? 1.0 - k : k) * b;
+                        }
+                        <span class="@(sortedPeriod && Model.SortBy == SortType.T ? "sorted-value" : "")">@(t.ToString("#,0.00"))</span> /
+                        <span class="@(sortedPeriod && Model.SortBy == SortType.K ? "sorted-value" : "")">@(k.ToString("#,0.00"))</span> /
+                        <span class="@(sortedPeriod && Model.SortBy == SortType.B ? "sorted-value" : "")">@(b)</span> /
+                        <span class="@(sortedPeriod && Model.SortBy == SortType.R ? "sorted-value" : "")" style="color: red;">@p.C</span> /
+                        <span class="@(sortedPeriod && Model.SortBy == SortType.M ? "sorted-value" : "")" style="color: green;">@p.M</span>
                     </div>
                     @if (receivedToday + madeToday > 0)
                     {
