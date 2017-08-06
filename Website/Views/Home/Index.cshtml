@@ -199,12 +199,31 @@
     }
 </div>
 <br />
+@functions
+{
+
+    MvcHtmlString ShowButton(SortType st, string text=null)
+    {
+        return Html.ActionLinkClone(String.IsNullOrEmpty(text)?st.ToString(): text, Model.GetRoute(), m =>
+        {
+            if (Model.Show.Contains(st))
+            {
+                m.Show = m.Show.Replace(st.ToString(), "");
+            }
+            else
+            {
+                m.Show += st.ToString();
+            }
+        }, new {@class = "btn btn-xs" + (Model.Show.Contains(st) ? " btn-primary" : " btn-default")});
+    }
+}
 <div class="text-center">
-    <span><span class="btn btn-default btn-xs">R</span> Received</span>
-    <span><span class="btn btn-default btn-xs">M</span> Made</span>
-    <span><span class="btn btn-default btn-xs">B</span> = M - R</span>
-    <span><span class="btn btn-default btn-xs">K</span> = M / (M + R)</span>
-    <span><span class="btn btn-default btn-xs">T</span> = B >= 0: <span style="text-decoration:underline">K * B</span>; B < 0: <span style="text-decoration:underline">(1 - K) * B</span></span>
+    <span>@ShowButton(SortType.R) Received</span>
+    <span>@ShowButton(SortType.M) Made</span>
+    <span>@ShowButton(SortType.B) = M - R</span>
+    <span>@ShowButton(SortType.K) = M / (M + R)</span>
+    <span>@ShowButton(SortType.T) = B >= 0: <span style="text-decoration: underline">K * B</span>; B < 0: <span style="text-decoration: underline">(1 - K) * B</span></span>
+    <span>@ShowButton(SortType.W, "Show best/worst partners")</span>
 </div>
 <br />
 <table class="table table-hover table-responsive">
@@ -246,12 +265,26 @@
                             }
                         }
                     }
-
-                    @Html.ActionLinkClone("T" + sortIndicatorT, Model.GetRoute(), r => { r.SortAsc = p.From == Model.SortPeriod && Model.SortBy == SortType.T && !Model.SortAsc; r.SortBy = SortType.T; r.SortPeriod = p.From.ToString(sortPeriodFormat); }, new { @class = "btn btn-xs " + (String.IsNullOrEmpty(sortIndicatorT) ? "btn-default" : "btn-primary") })
-                    @Html.ActionLinkClone("K" + sortIndicatorK, Model.GetRoute(), r => { r.SortAsc = p.From == Model.SortPeriod && Model.SortBy == SortType.K && !Model.SortAsc; r.SortBy = SortType.K; r.SortPeriod = p.From.ToString(sortPeriodFormat); }, new { @class = "btn btn-xs " + (String.IsNullOrEmpty(sortIndicatorK) ? "btn-default" : "btn-primary") })
-                    @Html.ActionLinkClone("B" + sortIndicatorB, Model.GetRoute(), r => { r.SortAsc = p.From == Model.SortPeriod && Model.SortBy == SortType.B && !Model.SortAsc; r.SortBy = SortType.B; r.SortPeriod = p.From.ToString(sortPeriodFormat); }, new { @class = "btn btn-xs " + (String.IsNullOrEmpty(sortIndicatorB) ? "btn-default" : "btn-primary") })
-                    @Html.ActionLinkClone("R" + sortIndicatorC, Model.GetRoute(), r => { r.SortAsc = p.From == Model.SortPeriod && Model.SortBy == SortType.R && !Model.SortAsc; r.SortBy = SortType.R; r.SortPeriod = p.From.ToString(sortPeriodFormat); }, new { @class = "btn btn-xs " + (String.IsNullOrEmpty(sortIndicatorC) ? "btn-default" : "btn-primary") })
-                    @Html.ActionLinkClone("M" + sortIndicatorM, Model.GetRoute(), r => { r.SortAsc = p.From == Model.SortPeriod && Model.SortBy == SortType.M && !Model.SortAsc; r.SortBy = SortType.M; r.SortPeriod = p.From.ToString(sortPeriodFormat); }, new { @class = "btn btn-xs " + (String.IsNullOrEmpty(sortIndicatorM) ? "btn-default" : "btn-primary") })
+                    @if (Model.Show.Contains(SortType.T))
+                    {
+                        @Html.ActionLinkClone("T" + sortIndicatorT, Model.GetRoute(), r => { r.SortAsc = p.From == Model.SortPeriod && Model.SortBy == SortType.T && !Model.SortAsc; r.SortBy = SortType.T; r.SortPeriod = p.From.ToString(sortPeriodFormat); }, new { @class = "btn btn-xs " + (String.IsNullOrEmpty(sortIndicatorT) ? "btn-default" : "btn-primary") })
+                    }
+                    @if (Model.Show.Contains(SortType.K))
+                    {
+                        @Html.ActionLinkClone("K" + sortIndicatorK, Model.GetRoute(), r => { r.SortAsc = p.From == Model.SortPeriod && Model.SortBy == SortType.K && !Model.SortAsc; r.SortBy = SortType.K; r.SortPeriod = p.From.ToString(sortPeriodFormat); }, new { @class = "btn btn-xs " + (String.IsNullOrEmpty(sortIndicatorK) ? "btn-default" : "btn-primary") })
+                    }
+                    @if (Model.Show.Contains(SortType.B))
+                    {
+                        @Html.ActionLinkClone("B" + sortIndicatorB, Model.GetRoute(), r => { r.SortAsc = p.From == Model.SortPeriod && Model.SortBy == SortType.B && !Model.SortAsc; r.SortBy = SortType.B; r.SortPeriod = p.From.ToString(sortPeriodFormat); }, new { @class = "btn btn-xs " + (String.IsNullOrEmpty(sortIndicatorB) ? "btn-default" : "btn-primary") })
+                    }
+                    @if (Model.Show.Contains(SortType.R))
+                    {
+                        @Html.ActionLinkClone("R" + sortIndicatorC, Model.GetRoute(), r => { r.SortAsc = p.From == Model.SortPeriod && Model.SortBy == SortType.R && !Model.SortAsc; r.SortBy = SortType.R; r.SortPeriod = p.From.ToString(sortPeriodFormat); }, new { @class = "btn btn-xs " + (String.IsNullOrEmpty(sortIndicatorC) ? "btn-default" : "btn-primary") })
+                    }
+                    @if (Model.Show.Contains(SortType.M))
+                    {
+                        @Html.ActionLinkClone("M" + sortIndicatorM, Model.GetRoute(), r => { r.SortAsc = p.From == Model.SortPeriod && Model.SortBy == SortType.M && !Model.SortAsc; r.SortBy = SortType.M; r.SortPeriod = p.From.ToString(sortPeriodFormat); }, new { @class = "btn btn-xs " + (String.IsNullOrEmpty(sortIndicatorM) ? "btn-default" : "btn-primary") })
+                    }
                 </div>
             </th>
         }
@@ -281,11 +314,26 @@
                             var k = (p.M + p.C) == 0 ? 0 : (double) p.M / (p.M + p.C);
                             var t = (b < 0 ? 1.0 - k : k) * b;
                         }
-                        <span class="@(sortedPeriod && Model.SortBy == SortType.T ? "sorted-value" : "")">@(t.ToString("#,0.00"))</span> /
-                        <span class="@(sortedPeriod && Model.SortBy == SortType.K ? "sorted-value" : "")">@(k.ToString("#,0.00"))</span> /
-                        <span class="@(sortedPeriod && Model.SortBy == SortType.B ? "sorted-value" : "")">@(b)</span> /
-                        <span class="@(sortedPeriod && Model.SortBy == SortType.R ? "sorted-value" : "")" style="color: red;">@p.C</span> /
-                        <span class="@(sortedPeriod && Model.SortBy == SortType.M ? "sorted-value" : "")" style="color: green;">@p.M</span>
+                        @if (Model.Show.Contains(SortType.T))
+                        {
+                            <text><span class="@(sortedPeriod && Model.SortBy == SortType.T ? "sorted-value" : "")">@(t.ToString("#,0.00"))</span> /                            </text>
+                        }
+                        @if (Model.Show.Contains(SortType.K))
+                        {
+                            <text><span class="@(sortedPeriod && Model.SortBy == SortType.K ? "sorted-value" : "")">@(k.ToString("#,0.00"))</span> /                            </text>
+                        }
+                        @if (Model.Show.Contains(SortType.B))
+                        {
+                            <text><span class="@(sortedPeriod && Model.SortBy == SortType.B ? "sorted-value" : "")">@(b)</span> /                            </text>
+                        }
+                        @if (Model.Show.Contains(SortType.R))
+                        {
+                            <text><span class="@(sortedPeriod && Model.SortBy == SortType.R ? "sorted-value" : "")" style="color: red;">@p.C</span> /                            </text>
+                        }
+                        @if (Model.Show.Contains(SortType.M))
+                        {
+                            <text><span class="@(sortedPeriod && Model.SortBy == SortType.M ? "sorted-value" : "")" style="color: green;">@p.M</span>                            </text>
+                        }
                     </div>
                     @if (receivedToday + madeToday > 0)
                     {
@@ -300,10 +348,13 @@
                             }
                         </div>
                     }
-                    <div style="font-size: 0.75em;">
-                        <span style="color: red;" title="The worst partner(s)">@String.Join(", ", p.Worst.Select(m => m.HunterName))</span>
-                        <span style="color: green;" title="The best partner(s)">@String.Join(", ", p.Best.Select(m => m.HunterName))</span>
-                    </div>
+                    @if (Model.Show.Contains(SortType.W))
+                    {
+                        <div style="font-size: 0.75em;">
+                            <span style="color: red;" title="The worst partner(s)">@String.Join(", ", p.Worst.Select(m => m.HunterName))</span>
+                            <span style="color: green;" title="The best partner(s)">@String.Join(", ", p.Best.Select(m => m.HunterName))</span>
+                        </div>
+                    }
                 </td>
             }
         </tr>

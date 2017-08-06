@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Web.Mvc;
 using System.Web.Routing;
 using ChickenHunt.Website.Controllers.Home.Actions.Index;
@@ -45,6 +47,7 @@ namespace ChickenHunt.Website.Controllers.Home.Actions.Index
         public SortType? SortBy { get; set; }
         public bool? SortAsc { get; set; }
         public string SortPeriod { get; set; }
+        public string Show { get; set; } = "RM";
 
         public override void MakeTheSameAs(IBaseRoute r)
         {
@@ -58,6 +61,7 @@ namespace ChickenHunt.Website.Controllers.Home.Actions.Index
                 SortAsc = d.SortAsc;
                 SortPeriod = d.SortPeriod;
                 Months = d.Months;
+                Show = d.Show;
             }
         }
         public int? Months { get; set; }
@@ -88,13 +92,13 @@ namespace ChickenHunt.Website.Controllers.Home.Actions.Index
             base.SetupModel(controller, route);
 
             RecentChickens = Math.Min(route.RecentChickens ?? 10, 1000);
-            SortBy = route.SortBy ?? SortType.T;
+            SortBy = route.SortBy ?? SortType.R;
             SortAsc = route.SortAsc ?? false;
             SortPeriod = DateTime.Today.AddDays(-DateTime.Today.Day + 1);
             SortPeriodFrom = DateTime.Today.AddDays(-DateTime.Today.Day + 1);
             SortPeriodTo = DateTime.Today.AddDays(-DateTime.Today.Day + 1).AddMonths(1);
             SortPeriodAnnual = false;
-            Months = Math.Min(route.Months ?? 4, 12);
+            Months = Math.Min(route.Months ?? 6, 12);
 
             if (!String.IsNullOrEmpty(route.SortPeriod))
             {
@@ -107,11 +111,28 @@ namespace ChickenHunt.Website.Controllers.Home.Actions.Index
                     SortPeriodAnnual = route.SortPeriod.Length == 4;
                 }
             }
+
+            Show = new SortType[]{SortType.R, SortType.M, };
+            if (!String.IsNullOrEmpty(route.Show))
+            {
+                var show = new List<SortType>();
+                foreach (var c in route.Show)
+                {
+                    SortType st;
+                    if (SortType.TryParse(c.ToString(), out st))
+                    {
+                        show.Add(st);
+                    }
+                }
+                if (show.Any())
+                    Show = show.ToArray();
+            }
         }
 
         public int RecentChickens { get; set; }
         public int Months { get; set; }
         public RecentChickenRecord[] Chickens { get; set; }
+        public SortType[] Show { get; set; }
     }
 
     public enum SortType
@@ -120,6 +141,7 @@ namespace ChickenHunt.Website.Controllers.Home.Actions.Index
         K,
         T,
         R,
-        M
+        M,
+        W
     }
 }
