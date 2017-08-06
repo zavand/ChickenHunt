@@ -65,13 +65,21 @@
         periods.Add(prevYear);
     }
 
+    var nonDeletedChickens = Model.Chickens
+        .Where(m => m.DeletedByHunterID == null).ToArray();
 
-    var rr = Model.Chickens
-.Where(m=>m.DeletedByHunterID==null)
-.Select(m => new {HunterID = m.Maker1ID, HunterName = m.Maker1Name, m.ChickenDate, M = m.ChickenCount, C = 0, K = 0})
-.Union(Model.Chickens.Select(m => new {HunterID = m.Maker2ID, HunterName = m.Maker2Name, m.ChickenDate, M = m.ChickenCount, C = 0, K = 0}))
-.Union(Model.Chickens.Select(m => new {HunterID = m.Recipient1ID, HunterName = m.Recipient1Name, m.ChickenDate, M = 0, C = m.ChickenCount, K = 0}))
-.Union(Model.Chickens.Select(m => new {HunterID = m.Recipient2ID, HunterName = m.Recipient2Name, m.ChickenDate, M = 0, C = m.ChickenCount, K = 0}))
+    var items = new  int[0].Select(a=>new { HunterID =0, HunterName = "", ChickenDate = DateTime.MinValue, M = 0, C = 0, K = 0 }).ToList();
+
+    for (int i = 0; i < nonDeletedChickens.Length; i++)
+    {
+        var m = nonDeletedChickens[i];
+        items.Add(new { HunterID = m.Maker1ID, HunterName = m.Maker1Name, m.ChickenDate, M = m.ChickenCount, C = 0, K = 0 });
+        items.Add(new { HunterID = m.Maker2ID, HunterName = m.Maker2Name, m.ChickenDate, M = m.ChickenCount, C = 0, K = 0 });
+        items.Add(new { HunterID = m.Recipient1ID, HunterName = m.Recipient1Name, m.ChickenDate, M = 0, C = m.ChickenCount, K = 0 });
+        items.Add(new { HunterID = m.Recipient2ID, HunterName = m.Recipient2Name, m.ChickenDate, M = 0, C = m.ChickenCount, K = 0 });
+    }
+
+    var rr = items
 .GroupBy(m => new {m.HunterID, m.HunterName})
 .Select(m => new
 {
@@ -79,7 +87,7 @@
     m.Key.HunterName,
     Periods = periods.Select(p =>
     {
-        var maxMade = Model.Chickens.Where(a => a.ChickenDate >= p.From && a.ChickenDate < p.To && (a.Maker1ID == m.Key.HunterID || a.Maker2ID == m.Key.HunterID))
+        var maxMade = nonDeletedChickens.Where(a => a.ChickenDate >= p.From && a.ChickenDate < p.To && (a.Maker1ID == m.Key.HunterID || a.Maker2ID == m.Key.HunterID))
             .GroupBy(a => new
             {
                 HunterID = a.Maker1ID == m.Key.HunterID ? a.Maker2ID : a.Maker1ID,
@@ -95,7 +103,7 @@
             .ToArray()
             ;
 
-        var maxReceived = Model.Chickens.Where(a => a.ChickenDate >= p.From && a.ChickenDate < p.To && (a.Recipient1ID == m.Key.HunterID || a.Recipient2ID == m.Key.HunterID))
+        var maxReceived = nonDeletedChickens.Where(a => a.ChickenDate >= p.From && a.ChickenDate < p.To && (a.Recipient1ID == m.Key.HunterID || a.Recipient2ID == m.Key.HunterID))
             .GroupBy(a => new
             {
                 HunterID = a.Recipient1ID == m.Key.HunterID ? a.Recipient2ID : a.Recipient1ID,
@@ -111,7 +119,7 @@
             .ToArray()
             ;
 
-        return new
+        var result = new
         {
             p.From,
             p.To,
@@ -120,6 +128,7 @@
             Best = maxMade.Where(a => a.Count == (maxMade.FirstOrDefault()?.Count ?? 0)).ToArray(),
             Worst = maxReceived.Where(a => a.Count == (maxReceived.FirstOrDefault()?.Count ?? 0)).ToArray()
         };
+        return result;
     }).ToArray()
 })
 .ToArray()
@@ -302,8 +311,8 @@
                 if (i == 1)
                 {
                     // Current month
-                    receivedToday = Model.Chickens.Count(m => m.ChickenDate.Date == DateTime.Today && (m.Recipient1ID==r.HunterID || m.Recipient2ID==r.HunterID));
-                    madeToday = Model.Chickens.Count(m => m.ChickenDate.Date == DateTime.Today && (m.Maker1ID==r.HunterID || m.Maker2ID==r.HunterID));
+                    receivedToday = nonDeletedChickens.Count(m => m.ChickenDate.Date == DateTime.Today && (m.Recipient1ID==r.HunterID || m.Recipient2ID==r.HunterID));
+                    madeToday = nonDeletedChickens.Count(m => m.ChickenDate.Date == DateTime.Today && (m.Maker1ID==r.HunterID || m.Maker2ID==r.HunterID));
                 }
                 var sortedPeriod = Model.SortPeriodFrom == p.From && Model.SortPeriodTo == p.To;
 
