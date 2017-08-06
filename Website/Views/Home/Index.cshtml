@@ -325,23 +325,39 @@
                         }
                         @if (Model.Show.Contains(SortType.T))
                         {
-                            <text><span class="@(sortedPeriod && Model.SortBy == SortType.T ? "sorted-value" : "")">@(t.ToString("#,0.00"))</span> /                            </text>
+                            <text><span class="@(sortedPeriod && Model.SortBy == SortType.T ? "sorted-value" : "")">@(t.ToString("#,0.00"))</span></text>
+                            if (Model.Show.Any(m=>new []{ SortType.K,SortType.B,SortType.R,SortType.M }.Contains(m)))
+                            {
+                                <text> / </text>
+                            }
                         }
                         @if (Model.Show.Contains(SortType.K))
                         {
-                            <text><span class="@(sortedPeriod && Model.SortBy == SortType.K ? "sorted-value" : "")">@(k.ToString("#,0.00"))</span> /                            </text>
+                            <span class="@(sortedPeriod && Model.SortBy == SortType.K ? "sorted-value" : "")">@(k.ToString("#,0.00"))</span>
+                            if (Model.Show.Any(m => new[] { SortType.B, SortType.R, SortType.M }.Contains(m)))
+                            {
+                                <text> / </text>
+                            }
                         }
                         @if (Model.Show.Contains(SortType.B))
                         {
-                            <text><span class="@(sortedPeriod && Model.SortBy == SortType.B ? "sorted-value" : "")">@(b)</span> /                            </text>
+                            <span class="@(sortedPeriod && Model.SortBy == SortType.B ? "sorted-value" : "")">@(b)</span>
+                            if (Model.Show.Any(m => new[] { SortType.R, SortType.M }.Contains(m)))
+                            {
+                                <text> / </text>
+                            }
                         }
                         @if (Model.Show.Contains(SortType.R))
                         {
-                            <text><span class="@(sortedPeriod && Model.SortBy == SortType.R ? "sorted-value" : "")" style="color: red;">@p.C</span> /                            </text>
+                            <span class="@(sortedPeriod && Model.SortBy == SortType.R ? "sorted-value" : "")" style="color: red;">@p.C</span>
+                            if (Model.Show.Any(m => new[] { SortType.M }.Contains(m)))
+                            {
+                                <text> / </text>
+                            }
                         }
                         @if (Model.Show.Contains(SortType.M))
                         {
-                            <text><span class="@(sortedPeriod && Model.SortBy == SortType.M ? "sorted-value" : "")" style="color: green;">@p.M</span>                            </text>
+                            <span class="@(sortedPeriod && Model.SortBy == SortType.M ? "sorted-value" : "")" style="color: green;">@p.M</span>
                         }
                     </div>
                     @if (receivedToday + madeToday > 0)
