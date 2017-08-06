@@ -2,6 +2,14 @@
 @{
     ViewBag.Title = "Hunter";
 }
+
+<style>
+    tr.deleted {
+        background-color: mistyrose;
+        border: solid 1px red;
+        text-decoration: line-through;
+    }
+</style>
 <h1>@Model.Hunter.Name</h1>
 <div class="row">
     <div class="col-md-6 col-sm-12">
@@ -25,22 +33,22 @@
                     counter = 1;
                     <tr>
                         <td colspan="6" style="background-color: gold; font-weight: bold;">@g.CreateDate.ToString("MMM, yyyy")
-                            <span class="pull-right">@Model.Games.Count(m =>m.CreateDate.Year == g.CreateDate.Year && m.CreateDate.Month == g.CreateDate.Month && (m.Maker1ID == Model.GetRoute().ID || m.Maker2ID == Model.GetRoute().ID))</span>
+                            <span class="pull-right">@Model.Games.Where(m =>m.CreateDate.Year == g.CreateDate.Year && m.CreateDate.Month == g.CreateDate.Month && (m.Maker1ID == Model.GetRoute().ID || m.Maker2ID == Model.GetRoute().ID)).Sum(m=> m.DeletedByHunterID==null? m.ChickenCount:0)</span>
                         </td>
                     </tr>
                 }
                 d = g.CreateDate;
                 var makerName = g.Maker1ID==Model.GetRoute().ID?g.Maker2Name: g.Maker1Name;
-                <tr>
+                <tr class="@(g.DeletedByHunterID!=null?"deleted":"")">
 @*                    <td>@counter.ToString("#,0")</td>*@
                     <td title="@g.CreateDate">@g.CreateDate.ToString("d, ddd")</td>
                     <td>@makerName</td>
                     <td>@g.Recipient1Name</td>
                     <td>@g.Recipient2Name</td>
-                    <td style="text-align: right;">@g.ChickenCount</td>
+                    <td style="text-align: right;">@(g.ChickenCount)</td>
                 </tr>
                 counter++;
-            }
+                }
         </table>
     </div>
     <div class="col-md-6 col-sm-12">
@@ -63,13 +71,13 @@
                 {
                     <tr>
                         <td colspan="6" style="background-color: gold; font-weight: bold;">@g.CreateDate.ToString("MMM, yyyy")
-                            <span class="pull-right">@Model.Games.Count(m => m.CreateDate.Year == g.CreateDate.Year && m.CreateDate.Month == g.CreateDate.Month && (m.Recipient1ID == Model.GetRoute().ID || m.Recipient2ID == Model.GetRoute().ID))</span>
+                            <span class="pull-right">@Model.Games.Where(m => m.CreateDate.Year == g.CreateDate.Year && m.CreateDate.Month == g.CreateDate.Month && (m.Recipient1ID == Model.GetRoute().ID || m.Recipient2ID == Model.GetRoute().ID)).Sum(m => m.DeletedByHunterID == null ? m.ChickenCount : 0)</span>
                         </td>
                     </tr>
                 }
                 d = g.CreateDate;
                 var recipientName = g.Recipient1ID == Model.GetRoute().ID ? g.Recipient2Name : g.Recipient1Name;
-                <tr>
+                <tr class="@(g.DeletedByHunterID!=null?"deleted":"")">
 @*                    <td>@counter.ToString("#,0")</td>*@
                     <td title="@g.CreateDate">@g.CreateDate.ToString("d, ddd")</td>
                     <td>@g.Maker1Name</td>
