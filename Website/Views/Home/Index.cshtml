@@ -1,4 +1,5 @@
-﻿@using ChickenHunt.Website.Controllers.Home.Actions.Index
+﻿@using System.Security.Principal
+@using ChickenHunt.Website.Controllers.Home.Actions.Index
 @using ChickenHunt.Website.DataLayer
 @model ChickenHunt.Website.Controllers.Home.Actions.Index.Model
 @{
@@ -467,4 +468,31 @@ else
             </small></span></div>
         </div>
     }
+}
+
+
+@{
+    @*FormsAuthenticationTicket ticket = null;
+    var c2 = System.Web.HttpContext.Current.Request.Cookies[FormsAuthentication.FormsCookieName];
+
+    if (c2 != null)
+    {
+        ticket = FormsAuthentication.Decrypt(c2.Value);
+        <div>Cookie found value: @c2.Value | ticket: @ticket</div>
+        if (ticket != null)
+        {
+            <div>ticket.CookiePath: @ticket.CookiePath</div>
+            <div>ticket.Expiration: @ticket.Expiration</div>
+            <div>ticket.Expired: @ticket.Expired</div>
+            <div>ticket.IsPersistent: @ticket.IsPersistent</div>
+            <div>ticket.IssueDate: @ticket.IssueDate</div>
+            <div>ticket.Name: @ticket.Name</div>
+            <div>ticket.UserData: @ticket.UserData</div>
+            <div>ticket.Version: @ticket.Version</div>
+        }
+    }
+    else
+    {
+        <div>Cookie NOT found</div>
+    }*@
 }
