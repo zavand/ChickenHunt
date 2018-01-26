@@ -56,7 +56,7 @@ namespace ChickenHunt.Website.Controllers.Home
                 {
                     post.Date = post.Date.Date.AddDays(1).AddMinutes(-1);
                 }
-                _dataStorage.InsertChickenRecord(DateTime.Now, post.Date, recipients[0], recipients[1], makers[0], makers[1], m.CurrentHunter.ID);
+                _dataStorage.InsertChickenRecord(DateTime.Now, post.Date, recipients[0], recipients[1], makers[0], makers[1], m.CurrentHunter.ID, post.Size);
                 var d = post.Date.Date;
                 d = d.AddDays(-d.Day + 1);
                 _dataStorage.UpdateCude(recipients[0], d);
@@ -102,5 +102,6 @@ namespace ChickenHunt.Website.Controllers.Home.Actions.Chicken2
         public string Recipients { get; set; }
         public string Makers { get; set; }
         public DateTime Date { get; set; }
+        public int Size { get; set; }
     }
 }

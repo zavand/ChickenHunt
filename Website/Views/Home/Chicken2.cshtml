@@ -27,12 +27,34 @@ table.text-left td {
             <input name="Post.Date" type="hidden" value="{{getDate()}}" />
             <input name="Post.Recipients" type="hidden" value="{{recipients}}" />
             <input name="Post.Makers" type="hidden" value="{{makers}}" />
+            <input name="Post.Size" type="hidden" value="{{size}}" />
 
             @*        <h4>{{getDate()}}</h4>*@
             <div style="display:inline-block; min-height:290px;">
                 <div uib-datepicker ng-model="dt" class="well well-sm" datepicker-options="options"></div>
             </div>
-
+            <div>
+                <button type="button" class="btn" ng-class="{'btn-primary':size==1,'btn-default':size!=1}" ng-click="size=1">
+                    x1<br/>
+                    Regular
+                </button>
+                <button type="button" class="btn" ng-class="{'btn-primary':size==2,'btn-default':size!=2}" ng-click="size=2">
+                    x2<br/>
+                    Twin size
+                </button>
+                <button type="button" class="btn" ng-class="{'btn-primary':size==3,'btn-default':size!=3}" ng-click="size=3">
+                    x3<br/>
+                    Queen size
+                </button>
+                <button type="button" class="btn" ng-class="{'btn-primary':size==4,'btn-default':size!=4}" ng-click="size=4">
+                    x4<br/>
+                    King size
+                </button>
+                <button type="button" class="btn" ng-class="{'btn-primary':size==5,'btn-default':size!=5}" ng-click="size=5">
+                    x5<br/>
+                    Family pack
+                </button>
+            </div>
             <table style="margin: auto;" class="text-left">
                 <tr ng-repeat="(index,hunter) in hunters" ng-hide="recipients.length==2&&makers.length==2&&!isRecipient(hunter.ID)&&!isMaker(hunter.ID)">
                     <td>{{hunter.Name}}</td>
@@ -71,6 +93,7 @@ table.text-left td {
             function($scope) {
                 $scope.recipients = [];
                 $scope.makers = [];
+                $scope.size = 1;
 
                 $scope.dt = new Date();
                 $scope.options = {

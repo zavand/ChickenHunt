@@ -312,8 +312,8 @@
                 if (i == 1)
                 {
                     // Current month
-                    receivedToday = nonDeletedChickens.Count(m => m.ChickenDate.Date == DateTime.Today && (m.Recipient1ID==r.HunterID || m.Recipient2ID==r.HunterID));
-                    madeToday = nonDeletedChickens.Count(m => m.ChickenDate.Date == DateTime.Today && (m.Maker1ID==r.HunterID || m.Maker2ID==r.HunterID));
+                    receivedToday = nonDeletedChickens.Where(m => m.ChickenDate.Date == DateTime.Today && (m.Recipient1ID==r.HunterID || m.Recipient2ID==r.HunterID)).Sum(m=>m.ChickenCount);
+                    madeToday = nonDeletedChickens.Where(m => m.ChickenDate.Date == DateTime.Today && (m.Maker1ID==r.HunterID || m.Maker2ID==r.HunterID)).Sum(m=>m.ChickenCount);
                 }
                 var sortedPeriod = Model.SortPeriodFrom == p.From && Model.SortPeriodTo == p.To;
 
@@ -416,56 +416,63 @@ else
 
 
         <div class="row" style="border: solid 1px @(c.DeletedByHunterID==null?"#eee":"red"); margin: 5px; background-color: @(c.DeletedByHunterID==null?"inherited":"mistyrose"); ">
-            <div class="col-sm-4 col-xs-6 col-md-4">
+            <div class="col-sm-1 col-xs-2 col-md-1 text-center">
+                x<span style="font-size: 30pt;">@(c.ChickenCount)</span>
+            </div>
+            <div class="col-sm-3 col-xs-5 col-md-3">
                 <div class="media">
                     <div class="media-left">
-                        <img src="~/Content/Images/Maker.png"/>
+                        <img src="~/Content/Images/Maker.png" />
                     </div>
                     <div class="media-body" style="text-decoration: @(c.DeletedByHunterID==null?"initial":"line-through");">
-                        @c.Maker1Name<br/>@c.Maker2Name
+                        @c.Maker1Name<br />@c.Maker2Name
                     </div>
                 </div>
             </div>
-            <div class="col-sm-4 col-xs-6 col-md-4">
+            <div class="col-sm-3 col-xs-5 col-md-3">
                 <div class="media">
                     <div class="media-left">
-                        <img src="~/Content/Images/Recipient.png"/>
+                        <img src="~/Content/Images/Recipient.png" />
                     </div>
                     <div class="media-body" style="text-decoration: @(c.DeletedByHunterID==null?"initial":"line-through");">
-                        @c.Recipient1Name <br/>@c.Recipient2Name
+                        @c.Recipient1Name <br />@c.Recipient2Name
                     </div>
                 </div>
             </div>
-            <div class="col-sm-4 col-xs-12 col-md-4"><span class="pull-right text-right"><small>
-                Reported by <strong>@c.ReporterName</strong> |
+            <div class="col-sm-5 col-xs-10 col-md-5">
+                <span class="pull-right text-right">
+                    <small>
+                        Reported by <strong>@c.ReporterName</strong> |
 
-                @if (c.CreateDate.Date == DateTime.Now.Date)
+                        @if (c.CreateDate.Date == DateTime.Now.Date)
                 {
                     <text>
                         <span class="label label-success">Today</span>
                     </text>
-                }
-                else
-                {
-                    @c.CreateDate.ToLongDateString()
-                }
-                                                                                             <br />
-                @if (c.DeletedByHunterID == null)
+        }
+        else
+        {
+            @c.CreateDate.ToLongDateString()
+}
+                        <br />
+                        @if (c.DeletedByHunterID == null)
                 {
                     if (User.Identity.IsAuthenticated && (DateTime.Now - c.CreateDate) < TimeSpan.FromDays(2))
                     {
                         <text>
-                            @Html.ActionLink("Delete", Model.GetRoute(), ChickenHunt.Website.Controllers.Home.Actions.DeleteChicken.Route.Create(c.ID), new {@class = "btn btn-xs btn-danger"})
+                            @Html.ActionLink("Delete", Model.GetRoute(), ChickenHunt.Website.Controllers.Home.Actions.DeleteChicken.Route.Create(c.ID), new { @class = "btn btn-xs btn-danger" })
                         </text>
-                    }
-                }
-                else
-                {
-                    <text>
-                        <span class="label label-danger">Deleted by @c.DeletedByHunterName</span>
-                    </text>
+            }
+        }
+        else
+        {
+            <text>
+                <span class="label label-danger">Deleted by @c.DeletedByHunterName</span>
+            </text>
 }
-            </small></span></div>
+                    </small>
+                </span>
+            </div>
         </div>
     }
 }
